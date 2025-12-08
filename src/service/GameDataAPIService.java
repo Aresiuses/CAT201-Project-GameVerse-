@@ -23,8 +23,8 @@ public class GameDataAPIService {
 
     // --- Configuration: REPLACE WITH YOUR ACTUAL KEYS ---
     // 1. Twitch/IGDB Credentials
-    private static final String TWITCH_CLIENT_ID = "9q99xss4dstxdjow2uzta2ueqicwbq";
-    private static final String TWITCH_CLIENT_SECRET = "ze0229j20ipl8snluerip8o04mscmk";
+    private static final String TWITCH_CLIENT_ID = "YOUR_TWITCH_CLIENT_ID";
+    private static final String TWITCH_CLIENT_SECRET = "YOUR_TWITCH_CLIENT_SECRET";
 
     // 2. API Endpoints
     private static final String TWITCH_TOKEN_URL = "https://id.twitch.tv/oauth2/token";
@@ -181,4 +181,5 @@ public class GameDataAPIService {
             return Optional.empty();
         }
     }
+
 }

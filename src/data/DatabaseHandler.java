@@ -1,63 +1,60 @@
 package src.data;
 
 import src.model.Game;
-import model.User;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-import com.google.gson.GsonBuilder;
+import src.model.User;
+import src.model.User.Role;
 import src.service.GameDataAPIService;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.FileReader;
-import java.io.IOException;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
+
+import java.io.*;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class DatabaseHandler {
+
+    // ===== GAME DATABASE =====
     private static final String FILE_PATH = "gameverse_data.json";
     private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
     private List<Game> games;
-    private static List<User> users = new ArrayList<>();
-    private static int userIdCounter = 1;
 
+    // ===== USER DATABASE (JSON) =====
+    private static final String USER_DB_PATH = "src/data/users.json";
+    private static List<User> users = new ArrayList<>();
 
     public DatabaseHandler() {
+        // ---- GAME INIT ----
         this.games = loadGameFromFile();
         if (this.games.isEmpty()) {
             initializeWithMockData();
             saveGamesToFile();
         }
 
-        // --- API Test Call ---
+        // ---- USER INIT ----
+        loadUsers();
+
+        // ---- IGDB API TEST ----
         System.out.println("\n--- Initiating IGDB API Test ---");
-
-        // 1. Instantiate the API Service
         GameDataAPIService apiService = new GameDataAPIService();
-
-        // 2. Call the API for a known game
-        String testGameTitle = "The Witcher 3"; // Choose any popular game
-        apiService.fetchGameMetadata(testGameTitle);
-
+        apiService.fetchGameMetadata("The Witcher 3");
         System.out.println("--- IGDB API Test Complete ---\n");
-        // -----------------------
     }
+
+    // ================= GAME METHODS =================
 
     private List<Game> loadGameFromFile() {
         File file = new File(FILE_PATH);
-        if (!file.exists()|| file.length() == 0){
-         return new ArrayList<>();
+        if (!file.exists() || file.length() == 0) {
+            return new ArrayList<>();
         }
         try (FileReader reader = new FileReader(file)) {
             Type gameListType = new TypeToken<ArrayList<Game>>() {}.getType();
             List<Game> loadedGames = gson.fromJson(reader, gameListType);
             return loadedGames != null ? loadedGames : new ArrayList<>();
-        }
-        catch (IOException e) {
-            System.err.println("Error loading games from file: " + e.getMessage());
+        } catch (IOException e) {
             return new ArrayList<>();
         }
     }
@@ -65,26 +62,17 @@ public class DatabaseHandler {
     public void saveGamesToFile() {
         try (FileWriter writer = new FileWriter(FILE_PATH)) {
             gson.toJson(games, writer);
-        } catch (IOException e) {
-            System.err.println("Error saving games to file: " + e.getMessage());
-        }
+        } catch (IOException ignored) {}
     }
 
     private void initializeWithMockData() {
-        // Initial Mock Data - demonstrates different platforms and genres
         Game g1 = new Game("CyberDrive 2077", "PC", "RPG", 59.99, 150);
-        g1.setDescription("A massive open-world RPG set in a futuristic dystopia.");
-        g1.setImageURL("https://placehold.co/400x250/cc0000/ffffff?text=PC+CyberDrive");
         games.add(g1);
 
         Game g2 = new Game("Aetheria Odyssey", "PS5", "Adventure", 69.99, 80);
-        g2.setDescription("A journey across magical lands with stunning graphics.");
-        g2.setImageURL("https://placehold.co/400x250/003366/ffffff?text=PS5+Aetheria");
         games.add(g2);
 
         Game g3 = new Game("Tactical Warfare X", "XBOX", "Shooter", 49.99, 200);
-        g3.setDescription("Fast-paced tactical multiplayer shooter experience.");
-        g3.setImageURL("https://placehold.co/400x250/008000/ffffff?text=XBOX+Warfare");
         games.add(g3);
     }
 
@@ -93,58 +81,65 @@ public class DatabaseHandler {
     }
 
     public Optional<Game> getGameById(String id) {
-        return games.stream()
-                .filter(g -> g.getId().equals(id))
-                .findFirst();
+        return games.stream().filter(g -> g.getId().equals(id)).findFirst();
     }
 
     public List<Game> searchGames(String query, String platform) {
-        // Core Java Processing: filtering and searching data
-        String lowerQuery = query.toLowerCase();
-
+        String q = query.toLowerCase();
         return games.stream()
-                .filter(g ->
-                        g.getTitle().toLowerCase().contains(lowerQuery) ||
-                                g.getGenre().toLowerCase().contains(lowerQuery) ||
-                                g.getDescription().toLowerCase().contains(lowerQuery)
-                )
-                .filter(g -> platform == null || platform.isEmpty() || g.getPlatform().equalsIgnoreCase(platform))
+                .filter(g -> g.getTitle().toLowerCase().contains(q))
+                .filter(g -> platform == null || platform.isEmpty()
+                        || g.getPlatform().equalsIgnoreCase(platform))
                 .collect(Collectors.toList());
     }
 
-    public void updateGame(Game updatedGame) {
-        // Simple update by replacing the old object with the new one
-        this.games = this.games.stream()
-                .map(g -> g.getId().equals(updatedGame.getId()) ? updatedGame : g)
-                .collect(Collectors.toList());
+    public void addGame(Game game) {
+        games.add(game);
         saveGamesToFile();
     }
 
-    public void addGame(Game newGame) {
-        this.games.add(newGame);
-        saveGamesToFile();
-    }
+    // ================= USER METHODS =================
 
-    public static User registerUser(String username, String email, String passwordHash) {
-    for (User u : users) {
-        if (u.getEmail().equalsIgnoreCase(email)) {
-            return null;
+    public static void loadUsers() {
+        File file = new File(USER_DB_PATH);
+        if (!file.exists()) {
+            users = new ArrayList<>();
+            return;
+        }
+
+        try (Reader reader = new FileReader(file)) {
+            Gson gson = new Gson();
+            User[] arr = gson.fromJson(reader, User[].class);
+            users = arr != null ? new ArrayList<>(Arrays.asList(arr)) : new ArrayList<>();
+        } catch (Exception e) {
+            users = new ArrayList<>();
         }
     }
 
-    User user = new User(userIdCounter++, username, email, passwordHash);
-    users.add(user);
-    return user;
-}
-
-public static User authenticateUser(String email, String passwordHash) {
-    for (User u : users) {
-        if (u.getEmail().equalsIgnoreCase(email)
-                && u.getPasswordHash().equals(passwordHash)) {
-            return u;
-        }
+    public static User authenticate(String email, String passwordHash) {
+        return users.stream()
+                .filter(u -> u.getEmail().equalsIgnoreCase(email)
+                        && u.getPasswordHash().equals(passwordHash))
+                .findFirst()
+                .orElse(null);
     }
-    return null;
-}
-}
 
+    public static User registerCustomer(String username, String email, String passwordHash) {
+        for (User u : users) {
+            if (u.getEmail().equalsIgnoreCase(email)) return null;
+        }
+
+        int newId = users.size() + 1;
+        User user = new User(newId, username, email, passwordHash, Role.CUSTOMER);
+        users.add(user);
+        saveUsers();
+        return user;
+    }
+
+    public static void saveUsers() {
+        try (Writer writer = new FileWriter(USER_DB_PATH)) {
+            Gson gson = new GsonBuilder().setPrettyPrinting().create();
+            gson.toJson(users, writer);
+        } catch (IOException ignored) {}
+    }
+}

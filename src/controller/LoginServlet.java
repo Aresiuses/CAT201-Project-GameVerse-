@@ -11,12 +11,12 @@ import java.io.IOException;
 public class LoginServlet extends HttpServlet {
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+            throws IOException {
 
         String email = request.getParameter("email");
         String password = request.getParameter("password");
 
-        User user = DatabaseHandler.authenticateUser(
+        User user = DatabaseHandler.authenticate(
                 email,
                 PasswordUtil.hashPassword(password)
         );
@@ -26,7 +26,14 @@ public class LoginServlet extends HttpServlet {
             return;
         }
 
-        request.getSession().setAttribute("loggedUser", user);
-        response.sendRedirect("index.html");
+        HttpSession session = request.getSession();
+        session.setAttribute("loggedUser", user);
+
+        // 🔀 ROLE FORK
+        if (user.getRole() == User.Role.ADMIN) {
+            response.sendRedirect("admin-dashboard.html");
+        } else {
+            response.sendRedirect("index.html");
+        }
     }
 }

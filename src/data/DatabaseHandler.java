@@ -1,6 +1,7 @@
 package src.data;
 
 import src.model.Game;
+import model.User;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.GsonBuilder;
@@ -20,6 +21,9 @@ public class DatabaseHandler {
     private static final String FILE_PATH = "gameverse_data.json";
     private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
     private List<Game> games;
+    private static List<User> users = new ArrayList<>();
+    private static int userIdCounter = 1;
+
 
     public DatabaseHandler() {
         this.games = loadGameFromFile();
@@ -120,4 +124,27 @@ public class DatabaseHandler {
         this.games.add(newGame);
         saveGamesToFile();
     }
+
+    public static User registerUser(String username, String email, String passwordHash) {
+    for (User u : users) {
+        if (u.getEmail().equalsIgnoreCase(email)) {
+            return null;
+        }
+    }
+
+    User user = new User(userIdCounter++, username, email, passwordHash);
+    users.add(user);
+    return user;
 }
+
+public static User authenticateUser(String email, String passwordHash) {
+    for (User u : users) {
+        if (u.getEmail().equalsIgnoreCase(email)
+                && u.getPasswordHash().equals(passwordHash)) {
+            return u;
+        }
+    }
+    return null;
+}
+}
+

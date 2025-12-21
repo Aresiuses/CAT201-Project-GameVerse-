@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>GameVerse Store</title>
+</head>
+<body>
+<h1>GameVerse Store</h1>
+<ul id="game-list"></ul>
+
+<script>
+    fetch('api/games')
+        .then(response => response.json())
+        .then(games => {
+            const list = document.getElementById('game-list');
+            games.forEach(game => {
+                const li = document.createElement('li');
+                li.textContent = `${game.title} (${game.platform}) - $${game.price}`;
+                list.appendChild(li);
+            });
+        })
+        .catch(err => console.error('Error loading games:', err));
+</script>
+</body>
+</html>

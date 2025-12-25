@@ -73,4 +73,11 @@ The stockCount field and related logic have been removed (please remove the stoc
 A new field, downloadSizeGB, and a business method, startDownload(), were added to simulate the post-purchase process.
 
 Git Usage Reminder:
+
 Please commit your changes frequently, use meaningful commit messages, and coordinate branching to avoid merge conflicts!
+
+### 5. Project Update
+1. Login functionalities
+2. Menu bar for users with divided view for admin and customer (admin able to see add game to store option on the menu)
+3. Update all of codes to be able to handle games with multiplatform.
+4. 

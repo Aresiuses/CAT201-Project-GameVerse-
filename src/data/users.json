@@ -1,0 +1,23 @@
+[
+  {
+    "id": 1,
+    "username": "admin",
+    "email": "admin@gameverse.com",
+    "passwordHash": "admin123",
+    "role": "ADMIN"
+  },
+  {
+    "id": 2,
+    "username": "alice",
+    "email": "alice@gmail.com",
+    "passwordHash": "alice123",
+    "role": "CUSTOMER"
+  },
+  {
+    "id": 3,
+    "username": "bob",
+    "email": "bob@gmail.com",
+    "passwordHash": "bob123",
+    "role": "CUSTOMER"
+  }
+]

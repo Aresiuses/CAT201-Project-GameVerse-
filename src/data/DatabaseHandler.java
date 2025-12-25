@@ -25,6 +25,11 @@ public class DatabaseHandler {
     private static final String USER_DB_PATH = "src/data/users.json";
     private static List<User> users = new ArrayList<>();
 
+    // ===== WISHLIST DATABASE =====
+    private static final String WISHLIST_DB_PATH = "src/data/wishlists.json";
+    private static List<Wishlist> wishlists = new ArrayList<>();
+
+
     public DatabaseHandler() {
         // ---- GAME INIT ----
         this.games = loadGameFromFile();
@@ -35,6 +40,8 @@ public class DatabaseHandler {
 
         // ---- USER INIT ----
         loadUsers();
+
+        loadWishlists();
 
         // ---- IGDB API TEST ----
         System.out.println("\n--- Initiating IGDB API Test ---");
@@ -143,3 +150,4 @@ public class DatabaseHandler {
         } catch (IOException ignored) {}
     }
 }
+

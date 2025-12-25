@@ -30,11 +30,6 @@ public class LoginServlet extends HttpServlet {
         HttpSession session = request.getSession();
         session.setAttribute("loggedUser", user);
 
-        // 🔀 ROLE FORK
-        if (user.getRole() == User.Role.ADMIN) {
-            response.sendRedirect("admin.html");
-        } else {
-            response.sendRedirect("index.html");
-        }
+        response.sendRedirect("index.html");
     }
 }

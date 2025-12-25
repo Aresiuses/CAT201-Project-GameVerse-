@@ -101,6 +101,18 @@ public class GameDataAPIService {
                     }
                 }
 
+                if (data.has("platforms")) {
+                    JsonArray platformArray = data.getAsJsonArray("platforms");
+                    for (JsonElement p : platformArray) {
+                        String pName = p.getAsJsonObject().get("name").getAsString();
+                        // Normalize names for our system
+                        if (pName.contains("PC")) game.addPlatform("PC");
+                        else if (pName.contains("PlayStation 5")) game.addPlatform("PS5");
+                        else if (pName.contains("Xbox Series")) game.addPlatform("XBOX");
+                        else if (pName.contains("Nintendo Switch")) game.addPlatform("SWITCH");
+                    }
+                }
+
                 return Optional.of(game);
             }
         } catch (Exception e) { return Optional.empty(); }

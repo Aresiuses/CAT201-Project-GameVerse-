@@ -1,6 +1,8 @@
 package src.model;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import java.util.Random;
 
@@ -11,7 +13,7 @@ public class Game implements Serializable {
     private String title;
     private String genre;
     private double price;
-    private String platform;
+    private List<String> platforms;
 
     private double downloadSizeGB;
     private String description;
@@ -25,7 +27,7 @@ public class Game implements Serializable {
     public Game() {
         this.id = UUID.randomUUID().toString();
         this.price = 0.0;
-
+        this.platforms = new ArrayList<>();
         Random rand = new Random();
         this.downloadSizeGB = 5.0 + (150.0 - 5.0) * rand.nextDouble();
         this.downloadSizeGB = Math.round(this.downloadSizeGB * 10.0) / 10.0;
@@ -35,10 +37,10 @@ public class Game implements Serializable {
         this.releaseDate = "TBA";
     }
 
-    public Game(String title, String platform, String genre, double price, double downloadSizeGB ) {
+    public Game(String title, List<String> platforms, String genre, double price, double downloadSizeGB ) {
         this();
         this.title = title;
-        this.platform = platform;
+        this.platforms = platforms;
         this.genre = genre;
         this.price = price;
         this.description = "Good Game";
@@ -57,8 +59,9 @@ public class Game implements Serializable {
     public void setGenre(String genre) {this.genre = genre; }
     public double getPrice() {return price; }
     public void setPrice(double price) {this.price = price; }
-    public String getPlatform() {return platform; }
-    public void setPlatform(String platform) {this.platform = platform; }
+    public List<String> getPlatforms() { return platforms; }
+    public void setPlatforms(List<String> platforms) { this.platforms = platforms; }
+    public void addPlatform(String p) { if(!this.platforms.contains(p)) this.platforms.add(p); }
 
     public double getDownloadSizeGB() {return downloadSizeGB; }
     public void setDownloadSizeGB(double downloadSizeGB) {this.downloadSizeGB = downloadSizeGB; }

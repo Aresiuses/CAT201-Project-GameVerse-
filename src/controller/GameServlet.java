@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * GameServlet.java - Controller Layer
@@ -30,28 +31,28 @@ public class GameServlet extends HttpServlet {
      */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-
-        // 1. Get search and filter parameters from the client
-        String searchQuery = request.getParameter("q") != null ? request.getParameter("q") : "";
-        String platformFilter = request.getParameter("platform");
-
-        // 2. Call the Java Business Logic (Data Access Layer)
-        List<Game> filteredGames = dbHandler.searchGames(searchQuery, platformFilter);
-
-        // 3. Set up the HTTP response (Output)
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
-        // Allows the frontend running locally to communicate with the server
         response.setHeader("Access-Control-Allow-Origin", "*");
 
-        // 4. Convert the Java list of Game objects into a JSON string
-        String jsonResponse = gson.toJson(filteredGames);
+        String gameId = request.getParameter("id");
 
-        // 5. Write the JSON back to the client
-        try (PrintWriter out = response.getWriter()) {
-            out.print(jsonResponse);
-            out.flush();
+        // NEW: If an ID is provided, fetch specific game details
+        if (gameId != null && !gameId.isEmpty()) {
+            Optional<Game> game = dbHandler.getGameById(gameId);
+            if (game.isPresent()) {
+                response.getWriter().print(gson.toJson(game.get()));
+            } else {
+                response.sendError(HttpServletResponse.SC_NOT_FOUND, "Game not found");
+            }
+            return;
         }
+
+        // Original search/filter logic
+        String searchQuery = request.getParameter("q") != null ? request.getParameter("q") : "";
+        String platformFilter = request.getParameter("platform");
+        List<Game> filteredGames = dbHandler.searchGames(searchQuery, platformFilter);
+        response.getWriter().print(gson.toJson(filteredGames));
     }
 
     /**

@@ -13,7 +13,6 @@ import java.io.*;
 import java.lang.reflect.Type;
 import java.util.*;
 import java.util.stream.Collectors;
-
 public class DatabaseHandler {
 
     // ===== GAME DATABASE =====
@@ -22,8 +21,13 @@ public class DatabaseHandler {
     private List<Game> games;
 
     // ===== USER DATABASE (JSON) =====
-    private static final String USER_DB_PATH = "src/data/users.json";
+    private static final String USER_DB_PATH = "users.json";
     private static List<User> users = new ArrayList<>();
+
+    // ---- USER INIT ----
+    static {
+        loadUsers();
+    }
 
     public DatabaseHandler() {
         // ---- GAME INIT ----
@@ -33,8 +37,6 @@ public class DatabaseHandler {
             saveGamesToFile();
         }
 
-        // ---- USER INIT ----
-        loadUsers();
 
         // ---- IGDB API TEST ----
         System.out.println("\n--- Initiating IGDB API Test ---");
@@ -103,6 +105,7 @@ public class DatabaseHandler {
     public static void loadUsers() {
         File file = new File(USER_DB_PATH);
         if (!file.exists()) {
+            System.out.println("User file not found at: " + file.getAbsolutePath());
             users = new ArrayList<>();
             return;
         }
@@ -111,12 +114,15 @@ public class DatabaseHandler {
             Gson gson = new Gson();
             User[] arr = gson.fromJson(reader, User[].class);
             users = arr != null ? new ArrayList<>(Arrays.asList(arr)) : new ArrayList<>();
+            System.out.println("Loaded " + users.size() + " users.");
         } catch (Exception e) {
             users = new ArrayList<>();
         }
     }
 
     public static User authenticate(String email, String passwordHash) {
+        if (users == null || users.isEmpty()) loadUsers();
+        System.out.println("Login attempt: " + email + " with hash " + passwordHash);
         return users.stream()
                 .filter(u -> u.getEmail().equalsIgnoreCase(email)
                         && u.getPasswordHash().equals(passwordHash))

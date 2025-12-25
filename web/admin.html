@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GameVerse Admin Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0d1117;
+            color: #c9d1d9;
+        }
+        .container {
+            max-width: 800px;
+        }
+        .form-input {
+            background-color: #161b22;
+            border: 1px solid #30363d;
+            color: #c9d1d9;
+        }
+        .btn-primary {
+            background-color: #eb5757;
+            transition: background-color 0.2s;
+        }
+        .btn-primary:hover {
+            background-color: #c0392b;
+        }
+    </style>
+</head>
+<body class="min-h-screen p-8">
+
+<header class="mb-10 text-center">
+    <h1 class="text-4xl font-extrabold text-red-500 mb-2">GameVerse Admin Control</h1>
+    <p class="text-gray-400">Add New Games to the Catalog</p>
+    <!-- NOTE: This is where the login status/link would go -->
+</header>
+
+<main class="container mx-auto p-6 bg-[#161b22] rounded-xl shadow-2xl border border-[#30363d]">
+
+    <div id="status-message" class="hidden p-4 mb-4 rounded-lg font-bold text-center"></div>
+
+    <form id="add-game-form" onsubmit="handleGameSubmission(event)">
+        <h2 class="text-2xl font-bold mb-6 border-b border-[#30363d] pb-3">Add Game via IGDB Search</h2>
+
+        <div class="space-y-4">
+            <!-- 1. Game Title (API Search Query) -->
+            <div>
+                <label for="game-title" class="block text-sm font-medium text-gray-300 mb-1">Game Title (Exact Match for API Search)</label>
+                <input type="text" id="game-title" required
+                       placeholder="e.g., Cyberpunk 2077, The Legend of Zelda: Tears of the Kingdom"
+                       class="form-input w-full p-3 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500">
+            </div>
+
+            <!-- 2. Core Store Data -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label for="game-price" class="block text-sm font-medium text-gray-300 mb-1">Selling Price (USD)</label>
+                    <input type="number" id="game-price" required step="0.01" min="0" value="59.99"
+                           class="form-input w-full p-3 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500">
+                </div>
+                <div>
+                    <label for="game-platform" class="block text-sm font-medium text-gray-300 mb-1">Platform</label>
+                    <select id="game-platform" required
+                            class="form-input w-full p-3 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500">
+                        <option value="PC">PC</option>
+                        <option value="PS5">PlayStation 5</option>
+                        <option value="XBOX">Xbox</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- 3. Submit Button -->
+            <div class="pt-4">
+                <button type="submit" id="submit-button"
+                        class="btn-primary w-full text-white font-semibold py-3 rounded-lg shadow-lg transition duration-200 flex items-center justify-center">
+                    <span id="button-text">Add Game to Catalog</span>
+                    <svg id="loading-spinner" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </form>
+</main>
+
+<script>
+    const ADMIN_API_ENDPOINT = '/api/admin';
+
+    function setStatusMessage(message, isSuccess) {
+        const statusEl = document.getElementById('status-message');
+        statusEl.innerText = message;
+        statusEl.classList.remove('hidden', 'bg-green-700', 'bg-red-700');
+
+        if (isSuccess) {
+            statusEl.classList.add('bg-green-700');
+        } else {
+            statusEl.classList.add('bg-red-700');
+        }
+    }
+
+    function toggleLoading(isLoading) {
+        const button = document.getElementById('submit-button');
+        const spinner = document.getElementById('loading-spinner');
+        const text = document.getElementById('button-text');
+
+        button.disabled = isLoading;
+        if (isLoading) {
+            spinner.classList.remove('hidden');
+            text.innerText = 'Processing...';
+        } else {
+            spinner.classList.add('hidden');
+            text.innerText = 'Add Game to Catalog';
+        }
+    }
+
+    async function handleGameSubmission(event) {
+        event.preventDefault();
+        toggleLoading(true);
+
+        const title = document.getElementById('game-title').value.trim();
+        const price = parseFloat(document.getElementById('game-price').value);
+        const platform = document.getElementById('game-platform').value;
+
+        // 1. Prepare data payload
+        const data = {
+            title: title,
+            price: price,
+            platform: platform
+        };
+
+        try {
+            // 2. Send POST request to the Admin Servlet
+            const response = await fetch(ADMIN_API_ENDPOINT, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                setStatusMessage(`SUCCESS: ${result.message}`, true);
+                // Clear form for next entry
+                document.getElementById('game-title').value = '';
+            } else {
+                // Servlet returned an error (e.g., 400 or 500)
+                setStatusMessage(`ERROR (${response.status}): ${result.message}`, false);
+            }
+
+        } catch (error) {
+            console.error('Network or Parsing error:', error);
+            setStatusMessage('FATAL ERROR: Could not connect to Admin Servlet.', false);
+        } finally {
+            toggleLoading(false);
+        }
+    }
+</script>
+</body>
+</html>

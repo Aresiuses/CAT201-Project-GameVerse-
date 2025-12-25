@@ -1,4 +1,4 @@
-package model;
+package src.model;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,7 +15,7 @@ public class User {
     private String email;
     private String passwordHash;
     private Role role;
-    private List<Integer> ownedGameIds;
+    private List<String> ownedGameIds;
 
     public User(int userId, String username, String email,
                 String passwordHash, Role role) {
@@ -32,5 +32,5 @@ public class User {
     public String getEmail() { return email; }
     public String getPasswordHash() { return passwordHash; }
     public Role getRole() { return role; }
-    public List<Integer> getOwnedGameIds() { return ownedGameIds; }
+    public List<String> getOwnedGameIds() { return ownedGameIds; }
 }

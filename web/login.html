@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - GameVerse</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background-color: #0d1117;
+            color: #c9d1d9;
+            font-family: 'Inter', sans-serif;
+        }
+        .login-card {
+            background-color: #161b22;
+            border: 1px solid #30363d;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+
+<div class="login-card w-full max-w-md p-8 rounded-2xl shadow-2xl">
+    <div class="text-center mb-8">
+        <h1 class="text-3xl font-extrabold text-red-500">GameVerse</h1>
+        <p class="text-gray-400 mt-2">Welcome back! Please login to your account.</p>
+    </div>
+
+    <!-- Error Message Handling -->
+    <div id="error-alert" class="hidden bg-red-900/50 border border-red-500 text-red-200 px-4 py-3 rounded-lg mb-6 text-sm">
+        Invalid email or password. Please try again.
+    </div>
+
+    <form action="LoginServlet" method="POST" class="space-y-6">
+        <div>
+            <label for="email" class="block text-sm font-medium text-gray-400 mb-1">Email Address</label>
+            <input type="email" id="email" name="email" required
+                   class="w-full bg-[#0d1117] border border-[#30363d] rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition"
+                   placeholder="admin@gameverse.com">
+        </div>
+
+        <div>
+            <label for="password" class="block text-sm font-medium text-gray-400 mb-1">Password</label>
+            <input type="password" id="password" name="password" required
+                   class="w-full bg-[#0d1117] border border-[#30363d] rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition"
+                   placeholder="••••••••">
+        </div>
+
+        <div class="flex items-center justify-between text-sm">
+            <label class="flex items-center">
+                <input type="checkbox" class="rounded border-gray-700 bg-gray-900 text-red-500 focus:ring-red-500">
+                <span class="ml-2 text-gray-400">Remember me</span>
+            </label>
+            <a href="#" class="text-red-500 hover:text-red-400">Forgot password?</a>
+        </div>
+
+        <button type="submit"
+                class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-lg shadow-lg shadow-red-900/20 transition transform active:scale-[0.98]">
+            Login to GameVerse
+        </button>
+    </form>
+
+    <div class="mt-8 text-center text-sm text-gray-400">
+        Don't have an account?
+        <a href="signup.html" class="text-red-500 font-semibold hover:underline">Sign up for free</a>
+    </div>
+</div>
+
+<script>
+    // Check for error parameters in the URL
+    window.onload = function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('error') === 'invalid') {
+            document.getElementById('error-alert').classList.remove('hidden');
+        }
+    };
+</script>
+</body>
+</html>

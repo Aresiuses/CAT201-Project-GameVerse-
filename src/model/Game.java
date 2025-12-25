@@ -18,6 +18,10 @@ public class Game implements Serializable {
     private String imageURL;
     private double lowestApiPrice;
 
+    private String developer;
+    private String publisher;
+    private String releaseDate;
+
     public Game() {
         this.id = UUID.randomUUID().toString();
         this.price = 0.0;
@@ -25,6 +29,10 @@ public class Game implements Serializable {
         Random rand = new Random();
         this.downloadSizeGB = 5.0 + (150.0 - 5.0) * rand.nextDouble();
         this.downloadSizeGB = Math.round(this.downloadSizeGB * 10.0) / 10.0;
+
+        this.developer = "Unavailable";
+        this.publisher = "Unavailable";
+        this.releaseDate = "TBA";
     }
 
     public Game(String title, String platform, String genre, double price, double downloadSizeGB ) {
@@ -51,6 +59,7 @@ public class Game implements Serializable {
     public void setPrice(double price) {this.price = price; }
     public String getPlatform() {return platform; }
     public void setPlatform(String platform) {this.platform = platform; }
+
     public double getDownloadSizeGB() {return downloadSizeGB; }
     public void setDownloadSizeGB(double downloadSizeGB) {this.downloadSizeGB = downloadSizeGB; }
     public String getDescription() {return description; }
@@ -59,5 +68,12 @@ public class Game implements Serializable {
     public void setImageURL(String imageURL) {this.imageURL = imageURL; }
     public double getLowestApiPrice() {return lowestApiPrice; }
     public void setLowestApiPrice(double lowestApiPrice) {this.lowestApiPrice = lowestApiPrice; }
+
+    public String getDeveloper() { return developer; }
+    public void setDeveloper(String developer) { this.developer = developer; }
+    public String getPublisher() { return publisher; }
+    public void setPublisher(String publisher) { this.publisher = publisher; }
+    public String getReleaseDate() { return releaseDate; }
+    public void setReleaseDate(String releaseDate) { this.releaseDate = releaseDate; }
 }
 

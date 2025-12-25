@@ -36,9 +36,12 @@
             <!-- Right: Info -->
             <div class="w-full lg:w-2/3">
                 <h1 id="game-title" class="text-5xl font-extrabold text-white mb-4"></h1>
+
+                <!-- Platform and Genre Badges -->
                 <div class="flex flex-wrap gap-2 mb-6">
                     <span id="game-genre" class="bg-red-900/30 text-red-400 px-3 py-1 rounded-full text-sm border border-red-800/50"></span>
-                    <span id="game-platform" class="bg-gray-800 text-gray-300 px-3 py-1 rounded-full text-sm border border-gray-700"></span>
+                    <!-- Platform container for multiple tags -->
+                    <div id="platform-container" class="flex flex-wrap gap-2"></div>
                 </div>
 
                 <p id="game-description" class="text-gray-400 text-lg leading-relaxed mb-8"></p>
@@ -97,7 +100,19 @@
             document.getElementById('game-description').innerText = game.description;
             document.getElementById('game-image').src = game.imageURL;
             document.getElementById('game-genre').innerText = game.genre;
-            document.getElementById('game-platform').innerText = game.platform;
+
+            // FIXED: Logic to handle multiple platforms
+            const platformContainer = document.getElementById('platform-container');
+            platformContainer.innerHTML = ''; // Clear existing
+
+            const platforms = game.platforms || [];
+            platforms.forEach(p => {
+                const tag = document.createElement('span');
+                tag.className = "bg-gray-800 text-gray-300 px-3 py-1 rounded-full text-sm border border-gray-700 uppercase font-bold tracking-tight";
+                tag.innerText = p;
+                platformContainer.appendChild(tag);
+            });
+
             document.getElementById('game-dev').innerText = game.developer;
             document.getElementById('game-pub').innerText = game.publisher;
             document.getElementById('game-date').innerText = game.releaseDate;
@@ -107,12 +122,13 @@
             document.getElementById('loading').remove();
             document.getElementById('content').classList.remove('hidden');
         } catch (err) {
+            console.error(err);
             document.body.innerHTML = '<div class="text-center py-20 text-red-500">Game not found. <a href="index.html" class="underline">Back to store</a></div>';
         }
     }
 
     function simulatePurchase() {
-        // This will be the entry point for your next simulation step
+        // Redirect to checkout with the game ID
         window.location.href = `checkout.html?id=${gameId}`;
     }
 

@@ -33,4 +33,9 @@ public class User {
     public String getPasswordHash() { return passwordHash; }
     public Role getRole() { return role; }
     public List<String> getOwnedGameIds() { return ownedGameIds; }
+
+    public void addOwnedGame(String gameId) {
+        if (ownedGameIds == null) ownedGameIds = new ArrayList<>();
+        if (!ownedGameIds.contains(gameId)) ownedGameIds.add(gameId);
+    }
 }

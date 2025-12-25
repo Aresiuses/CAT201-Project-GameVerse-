@@ -6,26 +6,13 @@
     <title>GameVerse Admin Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #0d1117;
-            color: #c9d1d9;
-        }
-        .container {
-            max-width: 800px;
-        }
-        .form-input {
-            background-color: #161b22;
-            border: 1px solid #30363d;
-            color: #c9d1d9;
-        }
-        .btn-primary {
-            background-color: #eb5757;
-            transition: background-color 0.2s;
-        }
-        .btn-primary:hover {
-            background-color: #c0392b;
-        }
+        body { font-family: 'Inter', sans-serif; background-color: #0d1117; color: #c9d1d9; }
+        .container { max-width: 800px; }
+        .form-input { background-color: #161b22; border: 1px solid #30363d; color: #c9d1d9; }
+        .btn-primary { background-color: #eb5757; transition: background-color 0.2s; }
+        .btn-primary:hover { background-color: #c0392b; }
+        .btn-secondary { background-color: #30363d; transition: background-color 0.2s; }
+        .btn-secondary:hover { background-color: #484f58; }
     </style>
 </head>
 <body class="min-h-screen p-8">
@@ -33,47 +20,53 @@
 <header class="mb-10 text-center">
     <h1 class="text-4xl font-extrabold text-red-500 mb-2">GameVerse Admin Control</h1>
     <p class="text-gray-400">Add New Games to the Catalog</p>
-    <!-- NOTE: This is where the login status/link would go -->
 </header>
 
 <main class="container mx-auto p-6 bg-[#161b22] rounded-xl shadow-2xl border border-[#30363d]">
-
     <div id="status-message" class="hidden p-4 mb-4 rounded-lg font-bold text-center"></div>
 
+    <div class="flex justify-between items-center mb-6 border-b border-[#30363d] pb-3">
+        <h2 class="text-2xl font-bold">Add Game via IGDB Search</h2>
+        <a href="index.html" class="btn-secondary text-sm text-white py-2 px-4 rounded-lg flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+            Back to Store
+        </a>
+    </div>
+
     <form id="add-game-form" onsubmit="handleGameSubmission(event)">
-        <h2 class="text-2xl font-bold mb-6 border-b border-[#30363d] pb-3">Add Game via IGDB Search</h2>
-
         <div class="space-y-4">
-            <!-- 1. Game Title (API Search Query) -->
             <div>
-                <label for="game-title" class="block text-sm font-medium text-gray-300 mb-1">Game Title (Exact Match for API Search)</label>
-                <input type="text" id="game-title" required
-                       placeholder="e.g., Cyberpunk 2077, The Legend of Zelda: Tears of the Kingdom"
-                       class="form-input w-full p-3 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500">
+                <label class="block text-sm font-medium text-gray-300 mb-1">Game Title (Exact Match)</label>
+                <input type="text" id="game-title" required placeholder="e.g., Cyberpunk 2077"
+                       class="form-input w-full p-3 rounded-lg focus:ring-2 focus:ring-red-500">
             </div>
 
-            <!-- 2. Core Store Data -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                    <label for="game-price" class="block text-sm font-medium text-gray-300 mb-1">Selling Price (USD)</label>
-                    <input type="number" id="game-price" required step="0.01" min="0" value="59.99"
-                           class="form-input w-full p-3 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500">
-                </div>
-                <div>
-                    <label for="game-platform" class="block text-sm font-medium text-gray-300 mb-1">Platform</label>
-                    <select id="game-platform" required
-                            class="form-input w-full p-3 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500">
-                        <option value="PC">PC</option>
-                        <option value="PS5">PlayStation 5</option>
-                        <option value="XBOX">Xbox</option>
-                    </select>
+            <div>
+                <label class="block text-sm font-medium text-gray-300 mb-1">Selling Price (USD)</label>
+                <input type="number" id="game-price" required step="0.01" min="0" value="59.99"
+                       class="form-input w-full p-3 rounded-lg focus:ring-2 focus:ring-red-500">
+            </div>
+
+            <div class="space-y-2">
+                <label class="block text-sm font-medium text-gray-300">Platforms</label>
+                <div class="grid grid-cols-2 gap-2">
+                    <label class="flex items-center space-x-2 bg-[#0d1117] p-2 rounded border border-[#30363d]">
+                        <input type="checkbox" name="platform" value="PC" class="accent-red-500"> <span>PC</span>
+                    </label>
+                    <label class="flex items-center space-x-2 bg-[#0d1117] p-2 rounded border border-[#30363d]">
+                        <input type="checkbox" name="platform" value="PS5" class="accent-red-500"> <span>PS5</span>
+                    </label>
+                    <label class="flex items-center space-x-2 bg-[#0d1117] p-2 rounded border border-[#30363d]">
+                        <input type="checkbox" name="platform" value="XBOX" class="accent-red-500"> <span>Xbox</span>
+                    </label>
+                    <label class="flex items-center space-x-2 bg-[#0d1117] p-2 rounded border border-[#30363d]">
+                        <input type="checkbox" name="platform" value="SWITCH" class="accent-red-500"> <span>Switch</span>
+                    </label>
                 </div>
             </div>
 
-            <!-- 3. Submit Button -->
             <div class="pt-4">
-                <button type="submit" id="submit-button"
-                        class="btn-primary w-full text-white font-semibold py-3 rounded-lg shadow-lg transition duration-200 flex items-center justify-center">
+                <button type="submit" id="submit-button" class="btn-primary w-full text-white font-semibold py-3 rounded-lg shadow-lg flex items-center justify-center">
                     <span id="button-text">Add Game to Catalog</span>
                     <svg id="loading-spinner" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -91,52 +84,41 @@
     function setStatusMessage(message, isSuccess) {
         const statusEl = document.getElementById('status-message');
         statusEl.innerText = message;
-        statusEl.classList.remove('hidden', 'bg-green-700', 'bg-red-700');
-
-        if (isSuccess) {
-            statusEl.classList.add('bg-green-700');
-        } else {
-            statusEl.classList.add('bg-red-700');
-        }
-    }
-
-    function toggleLoading(isLoading) {
-        const button = document.getElementById('submit-button');
-        const spinner = document.getElementById('loading-spinner');
-        const text = document.getElementById('button-text');
-
-        button.disabled = isLoading;
-        if (isLoading) {
-            spinner.classList.remove('hidden');
-            text.innerText = 'Processing...';
-        } else {
-            spinner.classList.add('hidden');
-            text.innerText = 'Add Game to Catalog';
-        }
+        statusEl.className = `p-4 mb-4 rounded-lg font-bold text-center ${isSuccess ? 'bg-green-700' : 'bg-red-700'}`;
+        statusEl.classList.remove('hidden');
     }
 
     async function handleGameSubmission(event) {
         event.preventDefault();
-        toggleLoading(true);
+        const btnText = document.getElementById('button-text');
+        const spinner = document.getElementById('loading-spinner');
+
+        btnText.innerText = 'Processing...';
+        spinner.classList.remove('hidden');
 
         const title = document.getElementById('game-title').value.trim();
         const price = parseFloat(document.getElementById('game-price').value);
-        const platform = document.getElementById('game-platform').value;
 
-        // 1. Prepare data payload
+        const selectedPlatforms = Array.from(document.querySelectorAll('input[name="platform"]:checked'))
+            .map(cb => cb.value);
+
+        if (selectedPlatforms.length === 0) {
+            setStatusMessage('Please select at least one platform.', false);
+            btnText.innerText = 'Add Game to Catalog';
+            spinner.classList.add('hidden');
+            return;
+        }
+
         const data = {
             title: title,
             price: price,
-            platform: platform
+            platforms: selectedPlatforms
         };
 
         try {
-            // 2. Send POST request to the Admin Servlet
             const response = await fetch(ADMIN_API_ENDPOINT, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data)
             });
 
@@ -144,18 +126,16 @@
 
             if (response.ok) {
                 setStatusMessage(`SUCCESS: ${result.message}`, true);
-                // Clear form for next entry
-                document.getElementById('game-title').value = '';
+                document.getElementById('add-game-form').reset();
             } else {
-                // Servlet returned an error (e.g., 400 or 500)
-                setStatusMessage(`ERROR (${response.status}): ${result.message}`, false);
+                setStatusMessage(`ERROR: ${result.message}`, false);
             }
-
         } catch (error) {
-            console.error('Network or Parsing error:', error);
-            setStatusMessage('FATAL ERROR: Could not connect to Admin Servlet.', false);
+            console.error('Submission error:', error);
+            setStatusMessage('FATAL ERROR: Could not connect to Admin Servlet. Make sure you are logged in as Admin.', false);
         } finally {
-            toggleLoading(false);
+            btnText.innerText = 'Add Game to Catalog';
+            spinner.classList.add('hidden');
         }
     }
 </script>

@@ -31,7 +31,7 @@ public class DatabaseHandler {
 
     public DatabaseHandler() {
         // ---- GAME INIT ----
-        this.games = loadGameFromFile();
+        this.games = loadGamesFromFile();
         if (this.games.isEmpty()) {
             initializeWithMockData();
             saveGamesToFile();
@@ -47,18 +47,13 @@ public class DatabaseHandler {
 
     // ================= GAME METHODS =================
 
-    private List<Game> loadGameFromFile() {
+    private List<Game> loadGamesFromFile() {
         File file = new File(FILE_PATH);
-        if (!file.exists() || file.length() == 0) {
-            return new ArrayList<>();
-        }
+        if (!file.exists() || file.length() == 0) return new ArrayList<>();
         try (FileReader reader = new FileReader(file)) {
-            Type gameListType = new TypeToken<ArrayList<Game>>() {}.getType();
-            List<Game> loadedGames = gson.fromJson(reader, gameListType);
-            return loadedGames != null ? loadedGames : new ArrayList<>();
-        } catch (IOException e) {
-            return new ArrayList<>();
-        }
+            Type listType = new TypeToken<ArrayList<Game>>() {}.getType();
+            return gson.fromJson(reader, listType);
+        } catch (IOException e) { return new ArrayList<>(); }
     }
 
     public void saveGamesToFile() {
@@ -68,13 +63,13 @@ public class DatabaseHandler {
     }
 
     private void initializeWithMockData() {
-        Game g1 = new Game("CyberDrive 2077", "PC", "RPG", 59.99, 150);
+        Game g1 = new Game("CyberDrive 2077", Arrays.asList("PC", "PS5", "XBOX"), "RPG", 59.99, 150);
         games.add(g1);
 
-        Game g2 = new Game("Aetheria Odyssey", "PS5", "Adventure", 69.99, 80);
+        Game g2 = new Game("Aetheria Odyssey", Arrays.asList("PS5"), "Adventure", 69.99, 80);
         games.add(g2);
 
-        Game g3 = new Game("Tactical Warfare X", "XBOX", "Shooter", 49.99, 200);
+        Game g3 = new Game("Tactical Warfare X", Arrays.asList("XBOX"), "Shooter", 49.99, 200);
         games.add(g3);
     }
 
@@ -90,8 +85,7 @@ public class DatabaseHandler {
         String q = query.toLowerCase();
         return games.stream()
                 .filter(g -> g.getTitle().toLowerCase().contains(q))
-                .filter(g -> platform == null || platform.isEmpty()
-                        || g.getPlatform().equalsIgnoreCase(platform))
+                .filter(g -> platform == null || platform.isEmpty() || g.getPlatforms().contains(platform))
                 .collect(Collectors.toList());
     }
 
@@ -99,6 +93,7 @@ public class DatabaseHandler {
         games.add(game);
         saveGamesToFile();
     }
+
 
     // ================= USER METHODS =================
 

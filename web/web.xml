@@ -18,7 +18,14 @@
         <servlet-name>GameServlet</servlet-name>
         <url-pattern>/api/games</url-pattern>
     </servlet-mapping>
-
+    <servlet>
+        <servlet-name>AdminServlet</servlet-name>
+        <servlet-class>src.controller.AdminServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>AdminServlet</servlet-name>
+        <url-pattern>/api/admin</url-pattern>
+    </servlet-mapping>
     <servlet>
         <servlet-name>SignupServlet</servlet-name>
         <servlet-class>src.controller.SignupServlet</servlet-class>
@@ -43,7 +50,7 @@
     </servlet>
     <servlet-mapping>
         <servlet-name>UserProfileServlet</servlet-name>
-        <url-pattern>/user/profile</url-pattern>
+        <url-pattern>/api/profile</url-pattern>
     </servlet-mapping>
 
     <servlet>

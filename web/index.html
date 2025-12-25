@@ -4,24 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GameVerse Digital Store</title>
-    <!-- Load Tailwind CSS for rapid, responsive styling -->
+    <!-- Load Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Custom styles for a dark, futuristic theme */
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #0d1117; /* Darkest background */
+            background-color: #0d1117;
             color: #c9d1d9;
         }
         .game-card {
-            background-color: #161b22; /* Slightly lighter card background */
+            background-color: #161b22;
             transition: transform 0.3s, box-shadow 0.3s;
             border: 1px solid #30363d;
             cursor: pointer;
         }
         .game-card:hover {
             transform: translateY(-8px) scale(1.02);
-            box-shadow: 0 15px 30px rgba(235, 87, 87, 0.3); /* Red glow on hover */
+            box-shadow: 0 15px 30px rgba(235, 87, 87, 0.3);
         }
         .platform-tag {
             font-size: 0.8rem;
@@ -36,168 +35,123 @@
 <!-- Header & Navigation -->
 <header class="bg-gray-900 shadow-2xl sticky top-0 z-10">
     <nav class="container mx-auto px-4 py-4 flex flex-wrap justify-between items-center">
-        <h1 class="text-3xl font-extrabold text-red-500">GameVerse</h1>
+        <h1 class="text-3xl font-extrabold text-red-500 cursor-pointer" onclick="window.location.href='index.html'">GameVerse</h1>
 
-        <!-- Search, Filters, and Cart (Responsive) -->
-        <div class="flex-grow flex flex-wrap justify-center sm:justify-end space-x-2 sm:space-x-4 mt-2 sm:mt-0">
+        <!-- Search, Filters, Cart, and Login -->
+        <div class="flex-grow flex flex-wrap justify-center sm:justify-end items-center space-x-2 sm:space-x-4 mt-2 sm:mt-0">
             <select id="platform-filter" class="p-2 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-red-500" onchange="fetchGames()">
                 <option value="">All Platforms</option>
                 <option value="PC">PC</option>
                 <option value="PS5">PlayStation 5</option>
                 <option value="XBOX">Xbox</option>
             </select>
-            <input type="text" id="search-input" placeholder="Search title or genre..." class="px-4 py-2 rounded-lg bg-gray-700 text-white placeholder-gray-400 w-40 sm:w-64" onkeyup="fetchGames()">
+            <input type="text" id="search-input" placeholder="Search title..." class="px-4 py-2 rounded-lg bg-gray-700 text-white placeholder-gray-400 w-32 sm:w-48" onkeyup="fetchGames()">
 
             <a href="cart.html" class="text-gray-300 hover:text-red-500 transition duration-200 flex items-center p-2 rounded-lg bg-gray-800">
-                <svg class="w-6 h-6 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                <svg class="w-5 h-5 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
                 Cart (<span id="cart-count">0</span>)
             </a>
+
+            <!-- DYNAMIC AUTH SECTION -->
+            <div id="auth-section" class="flex items-center space-x-2">
+                <!-- Loaded via JavaScript -->
+                <div class="animate-pulse bg-gray-700 h-10 w-24 rounded-lg"></div>
+            </div>
         </div>
     </nav>
 </header>
 
-<!-- Main Content Area -->
+<!-- Main Content -->
 <main class="container mx-auto p-4 sm:p-8">
     <h2 class="text-4xl font-extrabold mb-8 text-white border-b-2 border-red-500 pb-2">Catalog</h2>
 
-    <!-- Loading Indicator -->
     <div id="loading-indicator" class="text-center text-red-500 text-xl hidden mt-10">
-        <svg class="animate-spin h-8 w-8 mr-3 inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-        Fetching data from Java backend...
+        <p>Fetching games...</p>
     </div>
 
-    <!-- Game Listing Area (Populated by JavaScript) -->
-    <div id="game-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        <!-- Game cards will be dynamically injected here -->
-    </div>
-
-    <div id="no-results" class="text-center text-gray-500 text-xl mt-10 hidden">No GameVerse titles found matching your criteria.</div>
+    <div id="game-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
+    <div id="no-results" class="text-center text-gray-500 text-xl mt-10 hidden">No games found.</div>
 </main>
 
-<!-- Notification Container -->
-<div id="notification-container" class="fixed bottom-4 right-4 z-50"></div>
-
 <script>
-    // --- Full Stack Developer Focus: JS to Java Backend Interaction ---
-
-    // This path must match the Servlet mapping in GameServlet.java
-    const JAVA_API_ENDPOINT = '/api/games';
+    const GAME_API = '/api/games';
+    const PROFILE_API = '/api/profile'; // Mapping for UserProfileServlet
     let cartItems = [];
 
-    // Utility to map platform to Tailwind color for aesthetics
-    function getPlatformColor(platform) {
-        switch (platform.toUpperCase()) {
-            case 'PC': return 'bg-yellow-500 text-gray-900';
-            case 'PS5': return 'bg-blue-600';
-            case 'XBOX': return 'bg-green-600';
-            default: return 'bg-gray-500';
+    // Check login status on load
+    async function checkLoginStatus() {
+        const authSection = document.getElementById('auth-section');
+        try {
+            const response = await fetch(PROFILE_API);
+            if (response.ok) {
+                const user = await response.json();
+                authSection.innerHTML = `
+                        <div class="flex items-center space-x-3">
+                            <a href="profile.html" class="text-sm font-bold text-gray-300 hover:text-red-500">
+                                Hi, ${user.username}
+                            </a>
+                            ${user.role === 'ADMIN' ? '<a href="admin.html" class="text-xs bg-red-900 text-red-200 px-2 py-1 rounded">Admin</a>' : ''}
+                            <button onclick="logout()" class="text-xs text-gray-500 hover:text-white">Logout</button>
+                        </div>
+                    `;
+            } else {
+                authSection.innerHTML = `
+                        <a href="login.html" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-bold transition shadow-lg shadow-red-900/20">
+                            Login
+                        </a>
+                    `;
+            }
+        } catch (error) {
+            authSection.innerHTML = `<a href="login.html" class="text-red-500 font-bold">Login</a>`;
         }
     }
 
-    // Fetches game data from the Java Backend (GameServlet)
-    async function fetchGames() {
-        document.getElementById('loading-indicator').classList.remove('hidden');
-        document.getElementById('no-results').classList.add('hidden');
+    async function logout() {
+        // Simple mock logout: redirect to a servlet that kills the session
+        window.location.href = '/LogoutServlet';
+    }
 
+    async function fetchGames() {
         const query = document.getElementById('search-input').value;
         const platform = document.getElementById('platform-filter').value;
-
-        const url = `${JAVA_API_ENDPOINT}?q=${encodeURIComponent(query)}&platform=${encodeURIComponent(platform)}`;
+        const url = `${GAME_API}?q=${encodeURIComponent(query)}&platform=${encodeURIComponent(platform)}`;
 
         try {
             const response = await fetch(url);
-
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
             const games = await response.json();
             renderGames(games);
-
         } catch (error) {
-            console.error("Error fetching games from Java backend:", error);
-            document.getElementById('game-list').innerHTML = `<div class="col-span-full p-6 text-center text-red-400 bg-red-900/50 rounded-lg border border-red-800 mt-6">
-                    <p class="font-bold">Server Error:</p> Could not connect to the Java backend. Ensure your Tomcat/Jetty server is running and the ${JAVA_API_ENDPOINT} endpoint is correctly mapped.
-                </div>`;
-        } finally {
-            document.getElementById('loading-indicator').classList.add('hidden');
+            console.error("Fetch error", error);
         }
     }
 
-    // Renders the list of games received from the Java backend
     function renderGames(games) {
-        const listElement = document.getElementById('game-list');
-        listElement.innerHTML = '';
-
-        if (games.length === 0) {
-            document.getElementById('no-results').classList.remove('hidden');
-            return;
-        }
-
+        const list = document.getElementById('game-list');
+        list.innerHTML = '';
         games.forEach(game => {
-            const platformColor = getPlatformColor(game.platform);
-            const isAvailable = game.stockCount > 0;
-
-            const card = `
-                    <div class="game-card rounded-xl overflow-hidden shadow-xl p-4 flex flex-col justify-between" onclick="showNotification('Viewing details for ${game.title}')">
-                        <div>
-                            <img src="${game.imageUrl}" alt="${game.title}" onerror="this.onerror=null;this.src='https://placehold.co/400x250/30363d/c9d1d9?text=Image+Not+Found';"
-                                 class="w-full h-40 object-cover rounded-lg mb-4">
-                            <div class="flex justify-between items-start mb-2">
-                                <h3 class="text-xl font-semibold text-white">${game.title}</h3>
-                                <span class="${platformColor} platform-tag text-white">${game.platform}</span>
-                            </div>
-                            <p class="text-lg font-bold text-red-400 mb-2">$${game.price.toFixed(2)}</p>
-                            <p class="text-sm text-gray-400 line-clamp-3 mb-4">${game.description}</p>
-                            <p class="text-xs ${isAvailable ? 'text-green-500' : 'text-red-500'} mb-3">Stock: ${isAvailable ? 'Available' : 'Out of Stock'}</p>
+            list.innerHTML += `
+                    <div class="game-card rounded-xl overflow-hidden p-4 flex flex-col justify-between" onclick="window.location.href='game-details.html?id=${game.id}'">
+                        <img src="${game.imageURL}" class="w-full h-40 object-cover rounded-lg mb-4">
+                        <div class="flex justify-between items-center mb-2">
+                            <h3 class="font-bold text-white">${game.title}</h3>
+                            <span class="bg-gray-700 text-xs px-2 py-1 rounded-full">${game.platform}</span>
                         </div>
-                        <button onclick="event.stopPropagation(); ${isAvailable ? `addToCart('${game.id}', '${game.title}')` : `showNotification('Cannot add, out of stock!', true)`}"
-                                ${isAvailable ? '' : 'disabled'}
-                                class="w-full font-bold py-2 rounded-lg transition duration-200 transform ${isAvailable ? 'bg-red-600 hover:bg-red-700' : 'bg-gray-600 cursor-not-allowed' } text-white">
-                            ${isAvailable ? 'Add to Cart' : 'Out of Stock'}
-                        </button>
+                        <p class="text-red-400 font-bold">$${game.price.toFixed(2)}</p>
+                        <button onclick="event.stopPropagation(); addToCart('${game.id}', '${game.title}')" class="mt-4 bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg font-bold transition">Add to Cart</button>
                     </div>
                 `;
-            listElement.innerHTML += card;
         });
     }
 
-    // Handles adding items to the cart
-    function addToCart(gameId, title) {
-        // Mock frontend update
-        cartItems.push({ id: gameId, title: title });
+    function addToCart(id, title) {
+        cartItems.push({id, title});
         document.getElementById('cart-count').innerText = cartItems.length;
-
-        showNotification(`"${title}" added to cart!`);
-
-        // **TEAM TASK:** Implement AJAX POST request to CartServlet.java here to persist the cart state.
     }
 
-    // Custom notification system (replaces alert())
-    function showNotification(message, isError = false) {
-        const container = document.getElementById('notification-container');
-        const notification = document.createElement('div');
-
-        notification.className = `p-4 mb-3 rounded-lg shadow-2xl transition-all duration-500 transform translate-x-full opacity-0
-                                     ${isError ? 'bg-red-700 text-white' : 'bg-green-600 text-white'}`;
-        notification.innerText = message;
-
-        container.appendChild(notification);
-
-        // Animate in
-        setTimeout(() => {
-            notification.classList.remove('translate-x-full', 'opacity-0');
-        }, 10);
-
-        // Animate out and remove
-        setTimeout(() => {
-            notification.classList.add('translate-x-full', 'opacity-0');
-            notification.addEventListener('transitionend', () => notification.remove());
-        }, 3000);
-    }
-
-    // Initial load of games when the page is ready
-    window.onload = fetchGames;
+    window.onload = () => {
+        checkLoginStatus();
+        fetchGames();
+    };
 </script>
 </body>
 </html>

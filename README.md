@@ -30,8 +30,6 @@ private static final String TWITCH_CLIENT_ID = "YOUR_TWITCH_CLIENT_ID";
 private static final String TWITCH_CLIENT_SECRET = "YOUR_TWITCH_CLIENT_SECRET";
 ```
 
-Please also do the implementation for RAWG API at `src/service/GameDataAPIServiceRAWG.java`
-
 ### 2. Deployment Guide (IntelliJ IDEA)
 
 1. Open Project in IntelliJ.
@@ -75,5 +73,4 @@ The stockCount field and related logic have been removed (please remove the stoc
 A new field, downloadSizeGB, and a business method, startDownload(), were added to simulate the post-purchase process.
 
 Git Usage Reminder:
-
 Please commit your changes frequently, use meaningful commit messages, and coordinate branching to avoid merge conflicts!

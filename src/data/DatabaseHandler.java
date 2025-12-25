@@ -149,5 +149,64 @@ public class DatabaseHandler {
             gson.toJson(users, writer);
         } catch (IOException ignored) {}
     }
+
+    // Wishlist method
+    public static void loadWishlists() {
+        try (Reader reader = new FileReader(WISHLIST_DB_PATH)) {
+            Gson gson = new Gson();
+            Wishlist[] arr = gson.fromJson(reader, Wishlist[].class);
+            wishlists = arr != null ? new ArrayList<>(Arrays.asList(arr)) : new ArrayList<>();
+        } catch (Exception e) {
+            wishlists = new ArrayList<>();
+        }
+    }
+    
+    public static void saveWishlists() {
+        try (Writer writer = new FileWriter(WISHLIST_DB_PATH)) {
+            Gson gson = new GsonBuilder().setPrettyPrinting().create();
+            gson.toJson(wishlists, writer);
+        } catch (IOException ignored) {}
+    }
+    
+    public boolean addGameToWishlist(int userId, String gameId) {
+    
+        boolean gameExists = games.stream()
+                .anyMatch(g -> g.getId().equals(gameId));
+    
+        if (!gameExists) return false;
+    
+        Wishlist wl = wishlists.stream()
+                .filter(w -> w.getUserId() == userId)
+                .findFirst()
+                .orElse(null);
+    
+        if (wl == null) {
+            wl = new Wishlist(userId);
+            wishlists.add(wl);
+        }
+    
+        if (!wl.getGameIds().contains(gameId)) {
+            wl.getGameIds().add(gameId);
+            saveWishlists();
+        }
+    
+        return true;
+    }
+    
+    public List<Game> getUserWishlist(int userId) {
+    
+        Wishlist wl = wishlists.stream()
+                .filter(w -> w.getUserId() == userId)
+                .findFirst()
+                .orElse(null);
+    
+        if (wl == null) return new ArrayList<>();
+    
+        return games.stream()
+                .filter(g -> wl.getGameIds().contains(g.getId()))
+                .collect(Collectors.toList());
+    }
+
 }
+
 

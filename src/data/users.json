@@ -3,7 +3,7 @@
     "userId": 1,
     "username": "admin",
     "email": "admin@gameverse.com",
-    "passwordHash": "HASHED_PASSWORD_HERE",
+    "passwordHash": "admin123",
     "role": "ADMIN",
     "ownedGameIds": []
   },
@@ -11,7 +11,7 @@
     "userId": 2,
     "username": "izyancust",
     "email": "customer@gameverse.com",
-    "passwordHash": "HASHED_PASSWORD_HERE",
+    "passwordHash": "cust123",
     "role": "CUSTOMER",
     "ownedGameIds": [101, 102]
   }

@@ -11,6 +11,8 @@
         .form-input { background-color: #161b22; border: 1px solid #30363d; color: #c9d1d9; }
         .btn-primary { background-color: #eb5757; transition: background-color 0.2s; }
         .btn-primary:hover { background-color: #c0392b; }
+        .btn-secondary { background-color: #30363d; transition: background-color 0.2s; }
+        .btn-secondary:hover { background-color: #484f58; }
     </style>
 </head>
 <body class="min-h-screen p-8">
@@ -23,9 +25,15 @@
 <main class="container mx-auto p-6 bg-[#161b22] rounded-xl shadow-2xl border border-[#30363d]">
     <div id="status-message" class="hidden p-4 mb-4 rounded-lg font-bold text-center"></div>
 
-    <form id="add-game-form" onsubmit="handleGameSubmission(event)">
-        <h2 class="text-2xl font-bold mb-6 border-b border-[#30363d] pb-3">Add Game via IGDB Search</h2>
+    <div class="flex justify-between items-center mb-6 border-b border-[#30363d] pb-3">
+        <h2 class="text-2xl font-bold">Add Game via IGDB Search</h2>
+        <a href="index.html" class="btn-secondary text-sm text-white py-2 px-4 rounded-lg flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+            Back to Store
+        </a>
+    </div>
 
+    <form id="add-game-form" onsubmit="handleGameSubmission(event)">
         <div class="space-y-4">
             <div>
                 <label class="block text-sm font-medium text-gray-300 mb-1">Game Title (Exact Match)</label>
@@ -77,6 +85,7 @@
         const statusEl = document.getElementById('status-message');
         statusEl.innerText = message;
         statusEl.className = `p-4 mb-4 rounded-lg font-bold text-center ${isSuccess ? 'bg-green-700' : 'bg-red-700'}`;
+        statusEl.classList.remove('hidden');
     }
 
     async function handleGameSubmission(event) {
@@ -90,7 +99,6 @@
         const title = document.getElementById('game-title').value.trim();
         const price = parseFloat(document.getElementById('game-price').value);
 
-        // FIX: Collect all checked platforms into an array
         const selectedPlatforms = Array.from(document.querySelectorAll('input[name="platform"]:checked'))
             .map(cb => cb.value);
 

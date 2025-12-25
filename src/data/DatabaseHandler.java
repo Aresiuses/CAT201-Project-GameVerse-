@@ -23,11 +23,11 @@ public class DatabaseHandler {
     private List<Game> games;
 
     // ================= USER DATABASE =================
-    private static final String USER_DB_PATH = "src/data/users.json";
+    private static final String USER_DB_PATH = "users.json";
     private static List<User> users = new ArrayList<>();
 
     // ================= WISHLIST DATABASE =================
-    private static final String WISHLIST_DB_PATH = "src/data/wishlists.json";
+    private static final String WISHLIST_DB_PATH = "Wishlists.json";
     private static List<Wishlist> wishlists = new ArrayList<>();
 
     // ================= CONSTRUCTOR =================
@@ -221,3 +221,4 @@ public class DatabaseHandler {
                 .collect(Collectors.toList());
     }
 }
+

@@ -3,201 +3,211 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GameVerse Digital Store</title>
-    <!-- Load Tailwind CSS for rapid, responsive styling -->
+    <title>GameVerse | Digital Store & Library</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Custom styles for a dark, futuristic theme */
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #0d1117; /* Darkest background */
-            color: #c9d1d9;
-        }
-        .game-card {
-            background-color: #161b22; /* Slightly lighter card background */
-            transition: transform 0.3s, box-shadow 0.3s;
-            border: 1px solid #30363d;
-            cursor: pointer;
-        }
-        .game-card:hover {
-            transform: translateY(-8px) scale(1.02);
-            box-shadow: 0 15px 30px rgba(235, 87, 87, 0.3); /* Red glow on hover */
-        }
-        .platform-tag {
-            font-size: 0.8rem;
-            padding: 0.3rem 0.8rem;
-            border-radius: 9999px;
-            font-weight: 700;
-        }
+        body { font-family: 'Inter', sans-serif; background-color: #0d1117; color: #c9d1d9; }
+        .game-card { background-color: #161b22; transition: transform 0.3s, box-shadow 0.3s; border: 1px solid #30363d; cursor: pointer; }
+        .game-card:hover { transform: translateY(-8px) scale(1.02); box-shadow: 0 15px 30px rgba(235, 87, 87, 0.3); }
+        #admin-sidebar { transition: transform 0.3s ease-in-out; background-color: #161b22; border-right: 1px solid #30363d; }
+        .sidebar-hidden { transform: translateX(-100%); }
+        .sidebar-visible { transform: translateX(0); }
+        .owned-badge { background: linear-gradient(45deg, #059669, #10b981); }
     </style>
 </head>
 <body class="min-h-screen">
 
-<!-- Header & Navigation -->
-<header class="bg-gray-900 shadow-2xl sticky top-0 z-10">
-    <nav class="container mx-auto px-4 py-4 flex flex-wrap justify-between items-center">
-        <h1 class="text-3xl font-extrabold text-red-500">GameVerse</h1>
+<div id="admin-sidebar" class="fixed inset-y-0 left-0 w-64 z-50 sidebar-hidden shadow-2xl p-6 flex flex-col">
+    <div class="flex justify-between items-center mb-8">
+        <h2 class="text-xl font-bold text-red-500">Menu</h2>
+        <button onclick="toggleMenu()" class="text-gray-400 hover:text-white text-2xl">&times;</button>
+    </div>
+    <nav id="sidebar-nav" class="space-y-4 flex-grow">
+        </nav>
+</div>
 
-        <!-- Search, Filters, and Cart (Responsive) -->
-        <div class="flex-grow flex flex-wrap justify-center sm:justify-end space-x-2 sm:space-x-4 mt-2 sm:mt-0">
-            <select id="platform-filter" class="p-2 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-red-500" onchange="fetchGames()">
+<header class="bg-gray-900 shadow-2xl sticky top-0 z-10">
+    <nav class="container mx-auto px-4 py-4 flex justify-between items-center">
+        <div class="flex items-center space-x-4">
+            <button onclick="toggleMenu()" class="p-2 rounded-lg bg-gray-800 hover:bg-gray-700 transition">
+                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+            </button>
+            <h1 class="text-3xl font-extrabold text-red-500 cursor-pointer" onclick="showStore()">GameVerse</h1>
+        </div>
+
+        <div class="flex-grow flex justify-end items-center space-x-4">
+            <select id="platform-filter" class="hidden md:block p-2 rounded-lg bg-gray-700 text-white border-none focus:ring-2 focus:ring-red-500" onchange="fetchGames()">
                 <option value="">All Platforms</option>
                 <option value="PC">PC</option>
-                <option value="PS5">PlayStation 5</option>
+                <option value="PS5">PS5</option>
                 <option value="XBOX">Xbox</option>
+                <option value="SWITCH">Switch</option>
             </select>
-            <input type="text" id="search-input" placeholder="Search title or genre..." class="px-4 py-2 rounded-lg bg-gray-700 text-white placeholder-gray-400 w-40 sm:w-64" onkeyup="fetchGames()">
-
-            <a href="cart.html" class="text-gray-300 hover:text-red-500 transition duration-200 flex items-center p-2 rounded-lg bg-gray-800">
-                <svg class="w-6 h-6 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-                Cart (<span id="cart-count">0</span>)
-            </a>
+            <input type="text" id="search-input" placeholder="Search games..." class="px-4 py-2 rounded-lg bg-gray-700 text-white w-40 sm:w-64 focus:outline-none focus:ring-2 focus:ring-red-500" onkeyup="fetchGames()">
+            <div id="auth-section" class="flex items-center"></div>
         </div>
+
+        <a href="cart.html" class="relative ml-4 p-2 rounded-lg bg-gray-800 hover:bg-gray-700 transition group border border-gray-700 hover:border-red-500">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-gray-300 group-hover:text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+            </svg>
+            <span id="cart-count" class="absolute -top-1 -right-1 bg-red-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full hidden">0</span>
+        </a>
     </nav>
 </header>
 
-<!-- Main Content Area -->
-<main class="container mx-auto p-4 sm:p-8">
-    <h2 class="text-4xl font-extrabold mb-8 text-white border-b-2 border-red-500 pb-2">Catalog</h2>
-
-    <!-- Loading Indicator -->
-    <div id="loading-indicator" class="text-center text-red-500 text-xl hidden mt-10">
-        <svg class="animate-spin h-8 w-8 mr-3 inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-        Fetching data from Java backend...
+<main class="container mx-auto p-8">
+    <div class="flex justify-between items-end mb-8 border-b-2 border-red-500 pb-2">
+        <h2 id="page-title" class="text-4xl font-extrabold text-white">Catalog</h2>
+        <p id="item-count" class="text-gray-500 font-medium"></p>
     </div>
-
-    <!-- Game Listing Area (Populated by JavaScript) -->
+    
     <div id="game-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        <!-- Game cards will be dynamically injected here -->
-    </div>
-
-    <div id="no-results" class="text-center text-gray-500 text-xl mt-10 hidden">No GameVerse titles found matching your criteria.</div>
+        </div>
 </main>
 
-<!-- Notification Container -->
-<div id="notification-container" class="fixed bottom-4 right-4 z-50"></div>
-
 <script>
-    // --- Full Stack Developer Focus: JS to Java Backend Interaction ---
+    const GAME_API = '/api/games';
+    const PROFILE_API = '/api/profile';
+    const LIBRARY_API = '/api/library';
 
-    // This path must match the Servlet mapping in GameServlet.java
-    const JAVA_API_ENDPOINT = '/api/games';
-    let cartItems = [];
+    let currentUser = null;
+    let viewMode = 'store'; // 'store' or 'library'
 
-    // Utility to map platform to Tailwind color for aesthetics
-    function getPlatformColor(platform) {
-        switch (platform.toUpperCase()) {
-            case 'PC': return 'bg-yellow-500 text-gray-900';
-            case 'PS5': return 'bg-blue-600';
-            case 'XBOX': return 'bg-green-600';
-            default: return 'bg-gray-500';
+    function toggleMenu() {
+        const sidebar = document.getElementById('admin-sidebar');
+        sidebar.classList.toggle('sidebar-hidden');
+    }
+
+    function showStore() {
+        viewMode = 'store';
+        document.getElementById('page-title').innerText = 'Catalog';
+        document.getElementById('platform-filter').classList.remove('hidden');
+        fetchGames();
+    }
+
+    function showLibrary() {
+        viewMode = 'library';
+        document.getElementById('page-title').innerText = 'My Library';
+        document.getElementById('platform-filter').classList.add('hidden');
+        fetchGames();
+        toggleMenu();
+    }
+
+    async function checkLoginStatus() {
+        const authSection = document.getElementById('auth-section');
+        const sidebarNav = document.getElementById('sidebar-nav');
+        try {
+            const response = await fetch(PROFILE_API);
+            if (response.ok) {
+                currentUser = await response.json();
+                authSection.innerHTML = `<span class="text-gray-400 font-medium hidden sm:inline">Hi, ${currentUser.username}</span>`;
+                
+                let navHtml = `
+                    <button onclick="showStore()" class="w-full text-left p-3 rounded-lg hover:bg-gray-800 transition">Storefront</button>
+                    <button onclick="showLibrary()" class="w-full text-left p-3 rounded-lg hover:bg-gray-800 transition">My Library</button>
+                    <a href="profile.html" class="block p-3 rounded-lg hover:bg-gray-800 transition">Account Settings</a>
+                `;
+
+                if (currentUser.role === 'ADMIN') {
+                    navHtml += `
+                        <div class="border-t border-gray-700 pt-4 mt-4">
+                            <p class="text-xs text-gray-500 uppercase tracking-widest mb-3 px-3">Staff Only</p>
+                            <a href="admin.html" class="block p-3 rounded-lg hover:bg-red-900/20 hover:text-red-400 transition">Add New Game</a>
+                        </div>`;
+                }
+                navHtml += `<button onclick="logout()" class="w-full text-left p-3 rounded-lg hover:bg-red-900/20 text-red-500 transition mt-10">Logout</button>`;
+                sidebarNav.innerHTML = navHtml;
+            } else {
+                authSection.innerHTML = `<a href="login.html" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-bold">Login</a>`;
+                sidebarNav.innerHTML = `<div class="py-10 text-center"><a href="login.html" class="block w-full bg-red-600 text-white font-bold py-3 rounded-lg">Login to GameVerse</a></div>`;
+            }
+        } catch (error) {
+            console.error("Auth check failed", error);
         }
     }
 
-    // Fetches game data from the Java Backend (GameServlet)
     async function fetchGames() {
-        document.getElementById('loading-indicator').classList.remove('hidden');
-        document.getElementById('no-results').classList.add('hidden');
-
-        const query = document.getElementById('search-input').value;
-        const platform = document.getElementById('platform-filter').value;
-
-        const url = `${JAVA_API_ENDPOINT}?q=${encodeURIComponent(query)}&platform=${encodeURIComponent(platform)}`;
+        const q = document.getElementById('search-input').value;
+        const p = document.getElementById('platform-filter').value;
+        const list = document.getElementById('game-list');
+        
+        list.innerHTML = `<div class="col-span-full text-center py-20 text-gray-500 animate-pulse">Loading Games...</div>`;
 
         try {
-            const response = await fetch(url);
+            // Fetch Store Games and User Library concurrently
+            const [gamesRes, libRes] = await Promise.all([
+                fetch(`${GAME_API}?q=${encodeURIComponent(q)}&platform=${encodeURIComponent(p)}`),
+                fetch(LIBRARY_API).catch(() => null)
+            ]);
 
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+            const games = await gamesRes.json();
+            const library = libRes && libRes.ok ? await libRes.json() : [];
+            const ownedIds = library.map(g => g.id);
+
+            if (viewMode === 'library') {
+                // Filter store list to only show what the user owns
+                const myGames = games.filter(g => ownedIds.includes(g.id));
+                renderGames(myGames, ownedIds, true);
+            } else {
+                renderGames(games, ownedIds, false);
             }
-
-            const games = await response.json();
-            renderGames(games);
-
-        } catch (error) {
-            console.error("Error fetching games from Java backend:", error);
-            document.getElementById('game-list').innerHTML = `<div class="col-span-full p-6 text-center text-red-400 bg-red-900/50 rounded-lg border border-red-800 mt-6">
-                    <p class="font-bold">Server Error:</p> Could not connect to the Java backend. Ensure your Tomcat/Jetty server is running and the ${JAVA_API_ENDPOINT} endpoint is correctly mapped.
-                </div>`;
-        } finally {
-            document.getElementById('loading-indicator').classList.add('hidden');
+        } catch (e) { 
+            list.innerHTML = `<div class="col-span-full text-center py-20 text-red-500">Error connecting to server.</div>`;
         }
     }
 
-    // Renders the list of games received from the Java backend
-    function renderGames(games) {
-        const listElement = document.getElementById('game-list');
-        listElement.innerHTML = '';
+    function renderGames(games, ownedIds, isLibraryView) {
+        const list = document.getElementById('game-list');
+        const countDisplay = document.getElementById('item-count');
+        list.innerHTML = '';
+        countDisplay.innerText = `${games.length} games`;
 
         if (games.length === 0) {
-            document.getElementById('no-results').classList.remove('hidden');
+            list.innerHTML = `<div class="col-span-full text-center py-20 text-gray-500">No games to show.</div>`;
             return;
         }
 
         games.forEach(game => {
-            const platformColor = getPlatformColor(game.platform);
-            const isAvailable = game.stockCount > 0;
+            const isOwned = ownedIds.includes(game.id);
+            const tags = (game.platforms || []).map(p => `
+                <span class="bg-gray-800 text-[10px] px-2 py-0.5 rounded-full text-gray-400 uppercase font-bold border border-gray-700">${p}</span>
+            `).join('');
 
-            const card = `
-                    <div class="game-card rounded-xl overflow-hidden shadow-xl p-4 flex flex-col justify-between" onclick="showNotification('Viewing details for ${game.title}')">
-                        <div>
-                            <img src="${game.imageUrl}" alt="${game.title}" onerror="this.onerror=null;this.src='https://placehold.co/400x250/30363d/c9d1d9?text=Image+Not+Found';"
-                                 class="w-full h-40 object-cover rounded-lg mb-4">
-                            <div class="flex justify-between items-start mb-2">
-                                <h3 class="text-xl font-semibold text-white">${game.title}</h3>
-                                <span class="${platformColor} platform-tag text-white">${game.platform}</span>
-                            </div>
-                            <p class="text-lg font-bold text-red-400 mb-2">$${game.price.toFixed(2)}</p>
-                            <p class="text-sm text-gray-400 line-clamp-3 mb-4">${game.description}</p>
-                            <p class="text-xs ${isAvailable ? 'text-green-500' : 'text-red-500'} mb-3">Stock: ${isAvailable ? 'Available' : 'Out of Stock'}</p>
+            // Context-aware button: Buy, In Library, or Play
+            let actionButton = '';
+            if (isLibraryView) {
+                actionButton = `<button onclick="event.stopPropagation(); playId('${game.id}')" class="w-full bg-green-600 hover:bg-green-500 text-white py-2 rounded-lg font-bold transition">Play Now</button>`;
+            } else if (isOwned) {
+                actionButton = `<button disabled class="w-full bg-gray-800 text-gray-500 py-2 rounded-lg font-bold cursor-not-allowed border border-gray-700">In Library</button>`;
+            } else {
+                actionButton = `<button onclick="event.stopPropagation(); addToCart('${game.id}', '${game.title}')" class="w-full bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg font-bold transition">Add to Cart</button>`;
+            }
+
+            list.innerHTML += `
+                <div class="game-card rounded-xl overflow-hidden p-4 flex flex-col justify-between" onclick="window.location.href='game-details.html?id=${game.id}'">
+                    <div>
+                        <div class="relative overflow-hidden rounded-lg mb-4">
+                            <img src="${game.imageURL}" class="w-full h-40 object-cover" onerror="this.src='https://placehold.co/400x250?text=No+Image'">
+                            ${isOwned ? '<span class="absolute top-2 right-2 owned-badge text-white text-[10px] px-2 py-1 rounded font-bold shadow-lg">OWNED</span>' : ''}
                         </div>
-                        <button onclick="event.stopPropagation(); ${isAvailable ? `addToCart('${game.id}', '${game.title}')` : `showNotification('Cannot add, out of stock!', true)`}"
-                                ${isAvailable ? '' : 'disabled'}
-                                class="w-full font-bold py-2 rounded-lg transition duration-200 transform ${isAvailable ? 'bg-red-600 hover:bg-red-700' : 'bg-gray-600 cursor-not-allowed' } text-white">
-                            ${isAvailable ? 'Add to Cart' : 'Out of Stock'}
-                        </button>
+                        <div class="flex flex-wrap gap-1 mb-2">${tags}</div>
+                        <h3 class="font-bold text-white text-lg mb-1 truncate">${game.title}</h3>
+                        <p class="text-sm text-gray-400 mb-2">${game.genre || 'Game'}</p>
                     </div>
-                `;
-            listElement.innerHTML += card;
+                    <div>
+                        <p class="text-red-400 font-bold text-xl mb-4">${isLibraryView ? '<span class="text-gray-600 text-sm italic font-normal">Ready to play</span>' : '$' + game.price.toFixed(2)}</p>
+                        ${actionButton}
+                    </div>
+                </div>`;
         });
     }
 
-    // Handles adding items to the cart
-    function addToCart(gameId, title) {
-        // Mock frontend update
-        cartItems.push({ id: gameId, title: title });
-        document.getElementById('cart-count').innerText = cartItems.length;
+    function logout() { window.location.href = '/logout'; }
+    function addToCart(id, title) { alert('Added ' + title + ' to cart!'); }
+    function playId(id) { alert('Launching game ID: ' + id); }
 
-        showNotification(`"${title}" added to cart!`);
-
-        // **TEAM TASK:** Implement AJAX POST request to CartServlet.java here to persist the cart state.
-    }
-
-    // Custom notification system (replaces alert())
-    function showNotification(message, isError = false) {
-        const container = document.getElementById('notification-container');
-        const notification = document.createElement('div');
-
-        notification.className = `p-4 mb-3 rounded-lg shadow-2xl transition-all duration-500 transform translate-x-full opacity-0
-                                     ${isError ? 'bg-red-700 text-white' : 'bg-green-600 text-white'}`;
-        notification.innerText = message;
-
-        container.appendChild(notification);
-
-        // Animate in
-        setTimeout(() => {
-            notification.classList.remove('translate-x-full', 'opacity-0');
-        }, 10);
-
-        // Animate out and remove
-        setTimeout(() => {
-            notification.classList.add('translate-x-full', 'opacity-0');
-            notification.addEventListener('transitionend', () => notification.remove());
-        }, 3000);
-    }
-
-    // Initial load of games when the page is ready
-    window.onload = fetchGames;
+    window.onload = () => { checkLoginStatus(); fetchGames(); };
 </script>
 </body>
 </html>

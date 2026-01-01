@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GameVerse Digital Store</title>
+    <title>GameVerse | Digital Store & Library</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #0d1117; color: #c9d1d9; }
@@ -12,6 +12,7 @@
         #admin-sidebar { transition: transform 0.3s ease-in-out; background-color: #161b22; border-right: 1px solid #30363d; }
         .sidebar-hidden { transform: translateX(-100%); }
         .sidebar-visible { transform: translateX(0); }
+        .owned-badge { background: linear-gradient(45deg, #059669, #10b981); }
     </style>
 </head>
 <body class="min-h-screen">
@@ -22,11 +23,7 @@
         <button onclick="toggleMenu()" class="text-gray-400 hover:text-white text-2xl">&times;</button>
     </div>
     <nav id="sidebar-nav" class="space-y-4 flex-grow">
-        <div class="animate-pulse space-y-4">
-            <div class="h-10 bg-gray-800 rounded"></div>
-            <div class="h-10 bg-gray-800 rounded w-3/4"></div>
-        </div>
-    </nav>
+        </nav>
 </div>
 
 <header class="bg-gray-900 shadow-2xl sticky top-0 z-10">
@@ -35,35 +32,66 @@
             <button onclick="toggleMenu()" class="p-2 rounded-lg bg-gray-800 hover:bg-gray-700 transition">
                 <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
             </button>
-            <h1 class="text-3xl font-extrabold text-red-500 cursor-pointer" onclick="window.location.href='index.html'">GameVerse</h1>
+            <h1 class="text-3xl font-extrabold text-red-500 cursor-pointer" onclick="showStore()">GameVerse</h1>
         </div>
 
         <div class="flex-grow flex justify-end items-center space-x-4">
-            <select id="platform-filter" class="hidden md:block p-2 rounded-lg bg-gray-700 text-white" onchange="fetchGames()">
+            <select id="platform-filter" class="hidden md:block p-2 rounded-lg bg-gray-700 text-white border-none focus:ring-2 focus:ring-red-500" onchange="fetchGames()">
                 <option value="">All Platforms</option>
                 <option value="PC">PC</option>
                 <option value="PS5">PS5</option>
                 <option value="XBOX">Xbox</option>
                 <option value="SWITCH">Switch</option>
             </select>
-            <input type="text" id="search-input" placeholder="Search..." class="px-4 py-2 rounded-lg bg-gray-700 text-white w-40 sm:w-64" onkeyup="fetchGames()">
-            <div id="auth-section"></div>
+            <input type="text" id="search-input" placeholder="Search games..." class="px-4 py-2 rounded-lg bg-gray-700 text-white w-40 sm:w-64 focus:outline-none focus:ring-2 focus:ring-red-500" onkeyup="fetchGames()">
+            <div id="auth-section" class="flex items-center"></div>
         </div>
+
+        <a href="cart.html" class="relative ml-4 p-2 rounded-lg bg-gray-800 hover:bg-gray-700 transition group border border-gray-700 hover:border-red-500">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-gray-300 group-hover:text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+            </svg>
+            <span id="cart-count" class="absolute -top-1 -right-1 bg-red-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full hidden">0</span>
+        </a>
     </nav>
 </header>
 
 <main class="container mx-auto p-8">
-    <h2 class="text-4xl font-extrabold mb-8 text-white border-b-2 border-red-500 pb-2">Catalog</h2>
-    <div id="game-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
+    <div class="flex justify-between items-end mb-8 border-b-2 border-red-500 pb-2">
+        <h2 id="page-title" class="text-4xl font-extrabold text-white">Catalog</h2>
+        <p id="item-count" class="text-gray-500 font-medium"></p>
+    </div>
+    
+    <div id="game-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        </div>
 </main>
 
 <script>
     const GAME_API = '/api/games';
     const PROFILE_API = '/api/profile';
+    const LIBRARY_API = '/api/library';
+
+    let currentUser = null;
+    let viewMode = 'store'; // 'store' or 'library'
 
     function toggleMenu() {
         const sidebar = document.getElementById('admin-sidebar');
         sidebar.classList.toggle('sidebar-hidden');
+    }
+
+    function showStore() {
+        viewMode = 'store';
+        document.getElementById('page-title').innerText = 'Catalog';
+        document.getElementById('platform-filter').classList.remove('hidden');
+        fetchGames();
+    }
+
+    function showLibrary() {
+        viewMode = 'library';
+        document.getElementById('page-title').innerText = 'My Library';
+        document.getElementById('platform-filter').classList.add('hidden');
+        fetchGames();
+        toggleMenu();
     }
 
     async function checkLoginStatus() {
@@ -72,62 +100,103 @@
         try {
             const response = await fetch(PROFILE_API);
             if (response.ok) {
-                const user = await response.json();
-                authSection.innerHTML = `<span class="text-gray-400 font-medium">Hi, ${user.username}</span>`;
-                let navHtml = `<a href="index.html" class="block p-3 rounded-lg bg-gray-800 text-white font-semibold">Storefront</a>`;
-                if (user.role === 'ADMIN') {
+                currentUser = await response.json();
+                authSection.innerHTML = `<span class="text-gray-400 font-medium hidden sm:inline">Hi, ${currentUser.username}</span>`;
+                
+                let navHtml = `
+                    <button onclick="showStore()" class="w-full text-left p-3 rounded-lg hover:bg-gray-800 transition">Storefront</button>
+                    <button onclick="showLibrary()" class="w-full text-left p-3 rounded-lg hover:bg-gray-800 transition">My Library</button>
+                    <a href="profile.html" class="block p-3 rounded-lg hover:bg-gray-800 transition">Account Settings</a>
+                `;
+
+                if (currentUser.role === 'ADMIN') {
                     navHtml += `
                         <div class="border-t border-gray-700 pt-4 mt-4">
-                            <p class="text-xs text-gray-500 uppercase tracking-widest mb-3">Administration</p>
-                            <a href="admin.html" class="block p-3 rounded-lg hover:bg-red-900/20 hover:text-red-400 transition">Add Game to Store</a>
+                            <p class="text-xs text-gray-500 uppercase tracking-widest mb-3 px-3">Staff Only</p>
+                            <a href="admin.html" class="block p-3 rounded-lg hover:bg-red-900/20 hover:text-red-400 transition">Add New Game</a>
                         </div>`;
                 }
-                navHtml += `<a href="profile.html" class="block p-3 rounded-lg hover:bg-gray-800 transition">My Profile</a>
-                           <button onclick="logout()" class="w-full text-left p-3 rounded-lg hover:bg-red-900/20 text-red-500 transition mt-10">Logout</button>`;
+                navHtml += `<button onclick="logout()" class="w-full text-left p-3 rounded-lg hover:bg-red-900/20 text-red-500 transition mt-10">Logout</button>`;
                 sidebarNav.innerHTML = navHtml;
             } else {
                 authSection.innerHTML = `<a href="login.html" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-bold">Login</a>`;
                 sidebarNav.innerHTML = `<div class="py-10 text-center"><a href="login.html" class="block w-full bg-red-600 text-white font-bold py-3 rounded-lg">Login to GameVerse</a></div>`;
             }
         } catch (error) {
-            authSection.innerHTML = `<a href="login.html" class="text-red-500 font-bold">Login</a>`;
+            console.error("Auth check failed", error);
         }
     }
 
     async function fetchGames() {
         const q = document.getElementById('search-input').value;
         const p = document.getElementById('platform-filter').value;
+        const list = document.getElementById('game-list');
+        
+        list.innerHTML = `<div class="col-span-full text-center py-20 text-gray-500 animate-pulse">Loading Games...</div>`;
+
         try {
-            const res = await fetch(`${GAME_API}?q=${encodeURIComponent(q)}&platform=${encodeURIComponent(p)}`);
-            const games = await res.json();
-            renderGames(games);
-        } catch (e) { console.error(e); }
+            // Fetch Store Games and User Library concurrently
+            const [gamesRes, libRes] = await Promise.all([
+                fetch(`${GAME_API}?q=${encodeURIComponent(q)}&platform=${encodeURIComponent(p)}`),
+                fetch(LIBRARY_API).catch(() => null)
+            ]);
+
+            const games = await gamesRes.json();
+            const library = libRes && libRes.ok ? await libRes.json() : [];
+            const ownedIds = library.map(g => g.id);
+
+            if (viewMode === 'library') {
+                // Filter store list to only show what the user owns
+                const myGames = games.filter(g => ownedIds.includes(g.id));
+                renderGames(myGames, ownedIds, true);
+            } else {
+                renderGames(games, ownedIds, false);
+            }
+        } catch (e) { 
+            list.innerHTML = `<div class="col-span-full text-center py-20 text-red-500">Error connecting to server.</div>`;
+        }
     }
 
-    function renderGames(games) {
+    function renderGames(games, ownedIds, isLibraryView) {
         const list = document.getElementById('game-list');
+        const countDisplay = document.getElementById('item-count');
         list.innerHTML = '';
-        if (!games || games.length === 0) {
-            list.innerHTML = `<div class="col-span-full text-center py-20 text-gray-500">No games found.</div>`;
+        countDisplay.innerText = `${games.length} games`;
+
+        if (games.length === 0) {
+            list.innerHTML = `<div class="col-span-full text-center py-20 text-gray-500">No games to show.</div>`;
             return;
         }
         games.forEach(game => {
-            // FIXED: Reference game.platforms correctly inside the loop
+            const isOwned = ownedIds.includes(game.id);
             const tags = (game.platforms || []).map(p => `
                 <span class="bg-gray-800 text-[10px] px-2 py-0.5 rounded-full text-gray-400 uppercase font-bold border border-gray-700">${p}</span>
             `).join('');
 
+            // Context-aware button: Buy, In Library, or Play
+            let actionButton = '';
+            if (isLibraryView) {
+                actionButton = `<button onclick="event.stopPropagation(); playId('${game.id}')" class="w-full bg-green-600 hover:bg-green-500 text-white py-2 rounded-lg font-bold transition">Play Now</button>`;
+            } else if (isOwned) {
+                actionButton = `<button disabled class="w-full bg-gray-800 text-gray-500 py-2 rounded-lg font-bold cursor-not-allowed border border-gray-700">In Library</button>`;
+            } else {
+                actionButton = `<button onclick="event.stopPropagation(); addToCart('${game.id}', '${game.title}')" class="w-full bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg font-bold transition">Add to Cart</button>`;
+            }
+
             list.innerHTML += `
                 <div class="game-card rounded-xl overflow-hidden p-4 flex flex-col justify-between" onclick="window.location.href='game-details.html?id=${game.id}'">
                     <div>
-                        <img src="${game.imageURL}" class="w-full h-40 object-cover rounded-lg mb-4" onerror="this.src='https://placehold.co/400x250?text=No+Image'">
+                        <div class="relative overflow-hidden rounded-lg mb-4">
+                            <img src="${game.imageURL}" class="w-full h-40 object-cover" onerror="this.src='https://placehold.co/400x250?text=No+Image'">
+                            ${isOwned ? '<span class="absolute top-2 right-2 owned-badge text-white text-[10px] px-2 py-1 rounded font-bold shadow-lg">OWNED</span>' : ''}
+                        </div>
                         <div class="flex flex-wrap gap-1 mb-2">${tags}</div>
-                        <h3 class="font-bold text-white text-lg mb-1">${game.title}</h3>
+                        <h3 class="font-bold text-white text-lg mb-1 truncate">${game.title}</h3>
                         <p class="text-sm text-gray-400 mb-2">${game.genre || 'Game'}</p>
                     </div>
                     <div>
-                        <p class="text-red-400 font-bold text-xl mb-4">$${game.price.toFixed(2)}</p>
-                        <button onclick="event.stopPropagation(); addToCart('${game.id}', '${game.title}')" class="w-full bg-red-600 text-white py-2 rounded-lg font-bold transition">Add to Cart</button>
+                        <p class="text-red-400 font-bold text-xl mb-4">${isLibraryView ? '<span class="text-gray-600 text-sm italic font-normal">Ready to play</span>' : '$' + game.price.toFixed(2)}</p>
+                        ${actionButton}
                     </div>
                 </div>`;
         });
@@ -135,6 +204,7 @@
 
     function logout() { window.location.href = '/logout'; }
     function addToCart(id, title) { alert('Added ' + title + ' to cart!'); }
+    function playId(id) { alert('Launching game ID: ' + id); }
 
     window.onload = () => { checkLoginStatus(); fetchGames(); };
 </script>

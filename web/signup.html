@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Join the Verse - GameVerse</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #0d1117; color: #c9d1d9; }
+        .form-input { 
+            background-color: #161b22; 
+            border: 1px solid #30363d; 
+            color: #c9d1d9; 
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .form-input:focus { 
+            border-color: #eb5757; 
+            outline: none; 
+            box-shadow: 0 0 0 3px rgba(235, 87, 87, 0.2); 
+        }
+        .btn-primary { background-color: #eb5757; transition: background-color 0.2s; }
+        .btn-primary:hover { background-color: #c0392b; }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-6">
+
+    <div class="w-full max-width-md max-w-md">
+        <div class="text-center mb-8">
+            <h1 class="text-5xl font-extrabold text-red-500 mb-2">GameVerse</h1>
+            <p class="text-gray-400 text-lg">Create your gaming profile</p>
+        </div>
+
+        <main class="bg-[#161b22] p-8 rounded-2xl shadow-2xl border border-[#30363d]">
+            <div id="status-message" class="hidden p-3 mb-4 rounded text-sm font-medium text-center"></div>
+
+            <form id="signup-form" onsubmit="handleSignup(event)" class="space-y-5">
+                <div>
+                    <label class="block text-sm font-medium text-gray-400 mb-1">Username</label>
+                    <input type="text" id="username" required 
+                           class="form-input w-full p-3 rounded-lg" placeholder="PlayerOne">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-400 mb-1">Email Address</label>
+                    <input type="email" id="email" required 
+                           class="form-input w-full p-3 rounded-lg" placeholder="gamer@example.com">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-400 mb-1">Password</label>
+                    <input type="password" id="password" required 
+                           class="form-input w-full p-3 rounded-lg" placeholder="••••••••">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-400 mb-1">Confirm Password</label>
+                    <input type="password" id="confirm-password" required 
+                           class="form-input w-full p-3 rounded-lg" placeholder="••••••••">
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <input type="checkbox" id="terms" required class="accent-red-500">
+                    <label for="terms" class="text-xs text-gray-400">
+                        I agree to the <a href="#" class="text-red-400 hover:underline">Terms of Service</a>
+                    </label>
+                </div>
+
+                <button type="submit" class="btn-primary w-full text-white font-bold py-3 rounded-lg shadow-lg flex items-center justify-center gap-2">
+                    <span>Create Account</span>
+                    <svg id="loader" class="animate-spin h-5 w-5 hidden" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                </button>
+            </form>
+
+            <div class="mt-6 pt-6 border-t border-[#30363d] text-center">
+                <p class="text-gray-400">Already have an account? 
+                    <a href="login.html" class="text-red-500 font-semibold hover:underline">Log In</a>
+                </p>
+            </div>
+        </main>
+
+        <div class="text-center mt-6">
+            <a href="index.html" class="text-sm text-gray-500 hover:text-gray-300 transition flex items-center justify-center gap-1">
+                ← Back to Store
+            </a>
+        </div>
+    </div>
+
+    <script>
+        const API_SIGNUP_URL = '/api/signup'; // Update this to your actual backend endpoint
+
+        function showStatus(msg, isError) {
+            const statusEl = document.getElementById('status-message');
+            statusEl.innerText = msg;
+            statusEl.className = `p-3 mb-4 rounded text-sm font-medium text-center ${isError ? 'bg-red-900/50 text-red-200 border border-red-800' : 'bg-green-900/50 text-green-200 border border-green-800'}`;
+            statusEl.classList.remove('hidden');
+        }
+
+        async function handleSignup(event) {
+            event.preventDefault();
+            const loader = document.getElementById('loader');
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirm-password').value;
+
+            // Simple Password Match Check
+            if (password !== confirmPassword) {
+                showStatus("Passwords do not match!", true);
+                return;
+            }
+
+            loader.classList.remove('hidden');
+
+            const payload = {
+                username: document.getElementById('username').value,
+                email: document.getElementById('email').value,
+                password: password
+            };
+
+            try {
+                // Example Fetch Call to your Servlet/API
+                const response = await fetch(API_SIGNUP_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    showStatus("Registration successful! Redirecting...", false);
+                    setTimeout(() => window.location.href = 'login.html', 2000);
+                } else {
+                    showStatus(result.message || "Signup failed. Try again.", true);
+                }
+            } catch (error) {
+                showStatus("Network error. Please check your connection.", true);
+            } finally {
+                loader.classList.add('hidden');
+            }
+        }
+    </script>
+</body>
+</html>

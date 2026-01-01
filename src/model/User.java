@@ -16,6 +16,7 @@ public class User {
     private String passwordHash;
     private Role role;
     private List<String> ownedGameIds;
+    private Cart cart;
 
     public User(int userId, String username, String email,
                 String passwordHash, Role role) {
@@ -25,6 +26,7 @@ public class User {
         this.passwordHash = passwordHash;
         this.role = role;
         this.ownedGameIds = new ArrayList<>();
+        this.cart = new Cart();
     }
 
     public int getUserId() { return userId; }
@@ -38,4 +40,10 @@ public class User {
         if (ownedGameIds == null) ownedGameIds = new ArrayList<>();
         if (!ownedGameIds.contains(gameId)) ownedGameIds.add(gameId);
     }
+
+    public Cart getCart() {
+        if (this.cart == null) this.cart = new Cart();
+        return cart;
+    }
+    public void setCart(Cart cart) { this.cart = cart; }
 }

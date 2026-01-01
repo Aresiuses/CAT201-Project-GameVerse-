@@ -63,13 +63,12 @@
     </servlet-mapping>
 
     <servlet>
-        <servlet-name>WishlistController</servlet-name>
-        <servlet-class>src.controller.WishlistController</servlet-class>
+        <servlet-name>CartServlet</servlet-name>
+        <servlet-class>src.controller.CartServlet</servlet-class>
     </servlet>
-
     <servlet-mapping>
-        <servlet-name>WishlistController</servlet-name>
-        <url-pattern>/WishlistController</url-pattern>
+        <servlet-name>CartServlet</servlet-name>
+        <url-pattern>/api/cart</url-pattern>
     </servlet-mapping>
     <!--
         TEAM TASK: Register other Servlets here

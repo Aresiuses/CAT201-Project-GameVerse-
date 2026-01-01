@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Secure Checkout - GameVerse</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #0d1117; color: #c9d1d9; font-family: 'Inter', sans-serif; }
+        .glass { background: rgba(22, 27, 34, 0.8); backdrop-filter: blur(10px); border: 1px solid #30363d; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+<nav class="p-6 border-b border-gray-800 flex justify-between items-center glass">
+    <a href="index.html" class="text-2xl font-bold text-red-500">GameVerse</a>
+    <a href="cart.html" class="text-sm text-gray-400 hover:text-white">Back to Cart</a>
+</nav>
+
+<main class="flex-grow container mx-auto py-12 px-4 max-w-4xl">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+
+        <!-- Left Side: Order Summary -->
+        <div class="glass p-8 rounded-2xl shadow-2xl h-fit">
+            <h2 class="text-2xl font-bold mb-6">Order Summary</h2>
+            <div id="checkout-list" class="space-y-4 mb-6">
+                <!-- Items loaded via JS -->
+                <p class="animate-pulse text-gray-600 text-sm">Verifying items...</p>
+            </div>
+            <div class="border-t border-gray-800 pt-4 flex justify-between items-center">
+                <span class="text-gray-400">Total Charged:</span>
+                <span id="checkout-total" class="text-3xl font-black text-white">$0.00</span>
+            </div>
+        </div>
+
+        <!-- Right Side: Payment Form -->
+        <div class="glass p-8 rounded-2xl shadow-2xl">
+            <h1 class="text-2xl font-bold mb-6">Payment Details</h1>
+
+            <form id="purchase-form" onsubmit="handlePurchase(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs text-gray-500 uppercase font-bold mb-1">Cardholder Name</label>
+                    <input type="text" placeholder="John Doe" required class="w-full bg-[#0d1117] border border-[#30363d] rounded-lg p-3 text-white focus:ring-2 focus:ring-red-500 outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs text-gray-500 uppercase font-bold mb-1">Card Number</label>
+                    <input type="text" placeholder="4444 5555 6666 7777" maxlength="19" required class="w-full bg-[#0d1117] border border-[#30363d] rounded-lg p-3 text-white focus:ring-2 focus:ring-red-500 outline-none">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs text-gray-500 uppercase font-bold mb-1">Expiry</label>
+                        <input type="text" placeholder="MM/YY" maxlength="5" required class="w-full bg-[#0d1117] border border-[#30363d] rounded-lg p-3 text-white focus:ring-2 focus:ring-red-500 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-500 uppercase font-bold mb-1">CVV</label>
+                        <input type="password" placeholder="***" maxlength="3" required class="w-full bg-[#0d1117] border border-[#30363d] rounded-lg p-3 text-white focus:ring-2 focus:ring-red-500 outline-none">
+                    </div>
+                </div>
+
+                <button type="submit" id="pay-button" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-4 rounded-xl mt-6 transition transform active:scale-95 shadow-lg shadow-red-900/20">
+                    Confirm & Complete Order
+                </button>
+                <p class="text-[10px] text-center text-gray-600 mt-4">By clicking confirm, you agree to GameVerse digital license terms.</p>
+            </form>
+
+            <!-- Processing Overlay -->
+            <div id="processing" class="hidden text-center py-10">
+                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-red-500 mx-auto"></div>
+                <p class="mt-4 font-bold text-lg">Encrypting Payment...</p>
+                <p class="text-sm text-gray-500">Communicating with bank servers.</p>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script>
+    const CART_API = 'api/cart';
+    const CHECKOUT_API = 'api/checkout';
+
+    async function loadOrderSummary() {
+        try {
+            const res = await fetch(CART_API);
+            const cart = await res.json();
+
+            const list = document.getElementById('checkout-list');
+            if (!cart.items || cart.items.length === 0) {
+                alert("Your cart is empty. Redirecting...");
+                window.location.href = 'index.html';
+                return;
+            }
+
+            list.innerHTML = cart.items.map(item => `
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-300 font-medium">${item.game.title} <span class="text-gray-500 text-[10px]">x${item.quantity}</span></span>
+                        <span class="text-white font-bold">$${item.getTotalPrice.toFixed(2)}</span>
+                    </div>
+                `).join('');
+
+            document.getElementById('checkout-total').innerText = `$${cart.totalPrice.toFixed(2)}`;
+        } catch (e) {
+            console.error("Summary error:", e);
+        }
+    }
+
+    async function handlePurchase(e) {
+        e.preventDefault();
+        document.getElementById('purchase-form').classList.add('hidden');
+        document.getElementById('processing').classList.remove('hidden');
+
+        // Simulate the delay for realism
+        setTimeout(async () => {
+            try {
+                const res = await fetch(CHECKOUT_API, { method: 'POST' });
+                const result = await res.json();
+
+                if (res.ok) {
+                    alert('Order Complete! Games have been added to your Library.');
+                    window.location.href = 'index.html'; // Library page
+                } else {
+                    alert('Error: ' + result.message);
+                    document.getElementById('purchase-form').classList.remove('hidden');
+                    document.getElementById('processing').classList.add('hidden');
+                }
+            } catch (error) {
+                alert('Server connection failed. Please try again.');
+            }
+        }, 2500);
+    }
+
+    window.onload = loadOrderSummary;
+</script>
+</body>
+</html>

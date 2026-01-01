@@ -11,8 +11,37 @@
     "userId": 2,
     "username": "izyancust",
     "email": "customer@gameverse.com",
-    "passwordHash": "240be518fabd2724ddb6f04030113ba571d8628f94c3a94631e2126c63748281",
+    "passwordHash": "4f21b18a4c743a5da01bb3a4955dea0a0294a0b4f7977b454c7259e37b2e6c19",
     "role": "CUSTOMER",
-    "ownedGameIds": ["101", "102"]
+    "ownedGameIds": [
+      "101",
+      "102",
+      "1b2ce24d-95c1-43e9-b1b1-939c3784c268",
+      "b4298270-17a8-40db-baf1-a96417664b8e"
+    ],
+    "cart": {
+      "items": [
+        {
+          "game": {
+            "id": "47d194ac-0ccf-4b72-989e-946bd8e693c6",
+            "title": "Aetheria Odyssey",
+            "genre": "Adventure",
+            "price": 69.99,
+            "platforms": [
+              "PS5"
+            ],
+            "downloadSizeGB": 134.0,
+            "description": "Good Game",
+            "imageURL": "https://placehold.co/400x250/34495e/ecf0f1?text\u003dAetheria+Odyssey",
+            "lowestApiPrice": 0.0,
+            "developer": "Unavailable",
+            "publisher": "Unavailable",
+            "releaseDate": "TBA"
+          },
+          "quantity": 1
+        }
+      ],
+      "totalPrice": 69.99
+    }
   }
 ]

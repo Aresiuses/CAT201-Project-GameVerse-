@@ -2,6 +2,7 @@ package src.data;
 
 import src.model.Game;
 import src.model.User;
+import src.model.CartItem;
 import src.model.User.Role;
 import src.service.GameDataAPIService;
 
@@ -80,6 +81,12 @@ public class DatabaseHandler {
     public Optional<Game> getGameById(String id) {
         return games.stream().filter(g -> g.getId().equals(id)).findFirst();
     }
+    // for library system
+    public List<Game> getGamesByIds(List<String> ids) {
+        return games.stream()
+                .filter(g -> ids.contains(g.getId()))
+                .collect(Collectors.toList());
+    }
 
     public List<Game> searchGames(String query, String platform) {
         String q = query.toLowerCase();
@@ -135,6 +142,22 @@ public class DatabaseHandler {
         users.add(user);
         saveUsers();
         return user;
+    }
+
+    public static boolean finalizePurchase(int userId) {
+        Optional<User> userOpt = users.stream().filter(u -> u.getUserId() == userId).findFirst();
+        if (userOpt.isPresent()) {
+            User user = userOpt.get();
+            // Move IDs from Cart to owned list
+            for (CartItem item : user.getCart().getItems()) {
+                user.addOwnedGame(item.getGame().getId());
+            }
+            // Clear the cart
+            user.getCart().clear();
+            saveUsers();
+            return true;
+        }
+        return false;
     }
 
     public static void saveUsers() {

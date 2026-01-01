@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Cart - GameVerse</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #0d1117; color: #c9d1d9; }
+        .glass { background: rgba(22, 27, 34, 0.8); backdrop-filter: blur(10px); border: 1px solid #30363d; }
+        .cart-card { background-color: #161b22; border: 1px solid #30363d; transition: border-color 0.2s; }
+        .cart-card:hover { border-color: #eb5757; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+<nav class="p-6 border-b border-gray-800 flex justify-between items-center glass sticky top-0 z-50">
+    <a href="index.html" class="text-2xl font-bold text-red-500">GameVerse</a>
+    <a href="index.html" class="text-sm hover:text-red-400 transition">Continue Shopping</a>
+</nav>
+
+<main class="container mx-auto py-12 px-4 max-w-4xl flex-grow">
+    <h1 class="text-4xl font-extrabold mb-10 text-white">Your Shopping Cart</h1>
+
+    <div id="cart-list" class="space-y-4">
+        <div class="text-center py-20 animate-pulse text-gray-600 text-lg">Retrieving your cart...</div>
+    </div>
+
+    <div id="empty-cart" class="hidden text-center py-20 glass rounded-2xl">
+        <p class="text-xl text-gray-500 mb-6">Your cart is empty.</p>
+        <a href="index.html" class="bg-red-600 hover:bg-red-700 text-white px-8 py-3 rounded-lg font-bold transition">Browse Games</a>
+    </div>
+
+    <div id="cart-summary" class="hidden mt-12 p-8 glass rounded-2xl border-t-4 border-red-500 flex flex-col md:flex-row justify-between items-center">
+        <div>
+            <p class="text-gray-500 text-sm uppercase font-bold">Total Amount</p>
+            <p id="total-price" class="text-5xl font-black text-white">$0.00</p>
+        </div>
+        <button onclick="goToCheckout()" class="bg-red-600 hover:bg-red-700 text-white px-12 py-4 rounded-xl font-bold text-lg shadow-lg">
+            Proceed to Checkout
+        </button>
+    </div>
+</main>
+
+<script>
+    const CART_API = 'api/cart';
+
+    async function loadCart() {
+        try {
+            const response = await fetch(CART_API);
+            const cart = await response.json();
+            renderCart(cart);
+        } catch (error) {
+            console.error("Cart load error:", error);
+            document.getElementById('cart-list').innerHTML = `<p class="text-center text-red-500">Error loading cart.</p>`;
+        }
+    }
+
+    function renderCart(cart) {
+        const listElement = document.getElementById('cart-list');
+        const summaryElement = document.getElementById('cart-summary');
+        const emptyElement = document.getElementById('empty-cart');
+
+        if (!cart.items || cart.items.length === 0) {
+            listElement.innerHTML = '';
+            emptyElement.classList.remove('hidden');
+            summaryElement.classList.add('hidden');
+            return;
+        }
+
+        emptyElement.classList.add('hidden');
+        summaryElement.classList.remove('hidden');
+
+        listElement.innerHTML = cart.items.map(item => {
+            const game = item.game;
+            return `
+                <div class="cart-card rounded-2xl p-6 flex items-center justify-between">
+                    <div class="flex items-center space-x-6">
+                        <img src="${game.imageURL}" class="w-24 h-14 object-cover rounded-lg border border-gray-800" onerror="this.src='https://placehold.co/400x250?text=Game'">
+                        <div>
+                            <h3 class="text-xl font-bold text-white">${game.title}</h3>
+                            <p class="text-xs text-gray-500 uppercase font-bold">${(game.platforms || []).join(', ')}</p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-2xl font-bold text-white">$${game.price.toFixed(2)}</p>
+                        <button onclick="removeFromCart('${game.id}')" class="text-sm text-gray-500 hover:text-red-500 mt-2">Remove</button>
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        const total = cart.totalPrice || 0;
+        document.getElementById('total-price').innerText = `$${total.toFixed(2)}`;
+    }
+
+    async function removeFromCart(gameId) {
+        await fetch(`${CART_API}?action=remove&gameId=${gameId}`, { method: 'POST' });
+        loadCart();
+    }
+
+    function goToCheckout() { window.location.href = 'checkout.html'; }
+
+    window.onload = loadCart;
+</script>
+</body>
+</html>

@@ -4,6 +4,7 @@ import src.model.Game;
 import src.model.User;
 import src.model.CartItem;
 import src.model.User.Role;
+import src.model.Wishlist;
 import src.service.GameDataAPIService;
 
 import com.google.gson.Gson;
@@ -14,30 +15,37 @@ import java.io.*;
 import java.lang.reflect.Type;
 import java.util.*;
 import java.util.stream.Collectors;
+
 public class DatabaseHandler {
 
-    // ===== GAME DATABASE =====
-    private static final String FILE_PATH = "gameverse_data.json";
+    // ================= GAME DATABASE =================
+    private static final String GAME_DB_PATH = "gameverse_data.json";
     private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
     private List<Game> games;
 
-    // ===== USER DATABASE (JSON) =====
+    // ================= USER DATABASE =================
     private static final String USER_DB_PATH = "users.json";
     private static List<User> users = new ArrayList<>();
 
-    // ---- USER INIT ----
-    static {
-        loadUsers();
-    }
+    // ================= WISHLIST DATABASE =================
+    private static final String WISHLIST_DB_PATH = "Wishlists.json";
+    private static List<Wishlist> wishlists = new ArrayList<>();
 
+    // ================= CONSTRUCTOR =================
     public DatabaseHandler() {
+
         // ---- GAME INIT ----
         this.games = loadGamesFromFile();
-        if (this.games.isEmpty()) {
+        if (games.isEmpty()) {
             initializeWithMockData();
             saveGamesToFile();
         }
 
+        // ---- USER INIT ----
+        loadUsers();
+
+        // ---- WISHLIST INIT ----
+        loadWishlists();
 
         // ---- IGDB API TEST ----
         System.out.println("\n--- Initiating IGDB API Test ---");
@@ -46,32 +54,35 @@ public class DatabaseHandler {
         System.out.println("--- IGDB API Test Complete ---\n");
     }
 
-    // ================= GAME METHODS =================
+    // ==================================================
+    // ================= GAME METHODS ===================
+    // ==================================================
 
     private List<Game> loadGamesFromFile() {
-        File file = new File(FILE_PATH);
-        if (!file.exists() || file.length() == 0) return new ArrayList<>();
-        try (FileReader reader = new FileReader(file)) {
-            Type listType = new TypeToken<ArrayList<Game>>() {}.getType();
-            return gson.fromJson(reader, listType);
-        } catch (IOException e) { return new ArrayList<>(); }
+        File file = new File(GAME_DB_PATH);
+        if (!file.exists() || file.length() == 0) {
+            return new ArrayList<>();
+        }
+
+        try (Reader reader = new FileReader(file)) {
+            Type type = new TypeToken<ArrayList<Game>>() {}.getType();
+            List<Game> data = gson.fromJson(reader, type);
+            return data != null ? data : new ArrayList<>();
+        } catch (IOException e) {
+            return new ArrayList<>();
+        }
     }
 
-    public void saveGamesToFile() {
-        try (FileWriter writer = new FileWriter(FILE_PATH)) {
+    private void saveGamesToFile() {
+        try (Writer writer = new FileWriter(GAME_DB_PATH)) {
             gson.toJson(games, writer);
         } catch (IOException ignored) {}
     }
 
     private void initializeWithMockData() {
-        Game g1 = new Game("CyberDrive 2077", Arrays.asList("PC", "PS5", "XBOX"), "RPG", 59.99, 150);
-        games.add(g1);
-
-        Game g2 = new Game("Aetheria Odyssey", Arrays.asList("PS5"), "Adventure", 69.99, 80);
-        games.add(g2);
-
-        Game g3 = new Game("Tactical Warfare X", Arrays.asList("XBOX"), "Shooter", 49.99, 200);
-        games.add(g3);
+        games.add(new Game("CyberDrive 2077", "PC", "RPG", 59.99, 150));
+        games.add(new Game("Aetheria Odyssey", "PS5", "Adventure", 69.99, 80));
+        games.add(new Game("Tactical Warfare X", "XBOX", "Shooter", 49.99, 200));
     }
 
     public List<Game> getAllGames() {
@@ -79,7 +90,9 @@ public class DatabaseHandler {
     }
 
     public Optional<Game> getGameById(String id) {
-        return games.stream().filter(g -> g.getId().equals(id)).findFirst();
+        return games.stream()
+                .filter(g -> g.getId().equals(id))
+                .findFirst();
     }
     // for library system
     public List<Game> getGamesByIds(List<String> ids) {
@@ -90,25 +103,24 @@ public class DatabaseHandler {
 
     public List<Game> searchGames(String query, String platform) {
         String q = query.toLowerCase();
+
         return games.stream()
-                .filter(g -> g.getTitle().toLowerCase().contains(q))
-                .filter(g -> platform == null || platform.isEmpty() || g.getPlatforms().contains(platform))
+                .filter(g -> g.getTitle().toLowerCase().contains(q)
+                        || g.getGenre().toLowerCase().contains(q))
+                .filter(g -> platform == null || platform.isEmpty()
+                        || g.getPlatform().equalsIgnoreCase(platform))
                 .collect(Collectors.toList());
     }
 
-    public void addGame(Game game) {
-        games.add(game);
-        saveGamesToFile();
-    }
-
-
-    // ================= USER METHODS =================
+    // ==================================================
+    // ================= USER METHODS ===================
+    // ==================================================
 
     public static void loadUsers() {
         File file = new File(USER_DB_PATH);
         if (!file.exists()) {
-            System.out.println("User file not found at: " + file.getAbsolutePath());
             users = new ArrayList<>();
+            saveUsers();
             return;
         }
 
@@ -116,15 +128,12 @@ public class DatabaseHandler {
             Gson gson = new Gson();
             User[] arr = gson.fromJson(reader, User[].class);
             users = arr != null ? new ArrayList<>(Arrays.asList(arr)) : new ArrayList<>();
-            System.out.println("Loaded " + users.size() + " users.");
         } catch (Exception e) {
             users = new ArrayList<>();
         }
     }
 
     public static User authenticate(String email, String passwordHash) {
-        if (users == null || users.isEmpty()) loadUsers();
-        System.out.println("Login attempt: " + email + " with hash " + passwordHash);
         return users.stream()
                 .filter(u -> u.getEmail().equalsIgnoreCase(email)
                         && u.getPasswordHash().equals(passwordHash))
@@ -133,6 +142,7 @@ public class DatabaseHandler {
     }
 
     public static User registerCustomer(String username, String email, String passwordHash) {
+
         for (User u : users) {
             if (u.getEmail().equalsIgnoreCase(email)) return null;
         }
@@ -166,4 +176,72 @@ public class DatabaseHandler {
             gson.toJson(users, writer);
         } catch (IOException ignored) {}
     }
+
+    // ==================================================
+    // ================= WISHLIST METHODS ===============
+    // ==================================================
+
+    public static void loadWishlists() {
+        File file = new File(WISHLIST_DB_PATH);
+        if (!file.exists()) {
+            wishlists = new ArrayList<>();
+            saveWishlists();
+            return;
+        }
+
+        try (Reader reader = new FileReader(file)) {
+            Gson gson = new Gson();
+            Wishlist[] arr = gson.fromJson(reader, Wishlist[].class);
+            wishlists = arr != null ? new ArrayList<>(Arrays.asList(arr)) : new ArrayList<>();
+        } catch (Exception e) {
+            wishlists = new ArrayList<>();
+        }
+    }
+
+    public static void saveWishlists() {
+        try (Writer writer = new FileWriter(WISHLIST_DB_PATH)) {
+            Gson gson = new GsonBuilder().setPrettyPrinting().create();
+            gson.toJson(wishlists, writer);
+        } catch (IOException ignored) {}
+    }
+
+    public boolean addGameToWishlist(int userId, String gameId) {
+
+        boolean gameExists = games.stream()
+                .anyMatch(g -> g.getId().equals(gameId));
+
+        if (!gameExists) return false;
+
+        Wishlist wl = wishlists.stream()
+                .filter(w -> w.getUserId() == userId)
+                .findFirst()
+                .orElse(null);
+
+        if (wl == null) {
+            wl = new Wishlist(userId);
+            wishlists.add(wl);
+        }
+
+        if (!wl.getGameIds().contains(gameId)) {
+            wl.getGameIds().add(gameId);
+            saveWishlists();
+        }
+
+        return true;
+    }
+
+    public List<Game> getUserWishlist(int userId) {
+
+        Wishlist wl = wishlists.stream()
+                .filter(w -> w.getUserId() == userId)
+                .findFirst()
+                .orElse(null);
+
+        if (wl == null) return new ArrayList<>();
+
+        return games.stream()
+                .filter(g -> wl.getGameIds().contains(g.getId()))
+                .collect(Collectors.toList());
+    }
 }
+

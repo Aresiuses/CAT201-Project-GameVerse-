@@ -1,13 +1,14 @@
-package controller;
+package src.controller;
 
-import data.DatabaseHandler;
-import model.User;
+import src.data.DatabaseHandler;
+import src.model.User;
 import util.PasswordUtil;
-
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.*;
 import javax.servlet.http.*;
 import java.io.IOException;
 
+@WebServlet("/LoginServlet")
 public class LoginServlet extends HttpServlet {
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
@@ -29,11 +30,6 @@ public class LoginServlet extends HttpServlet {
         HttpSession session = request.getSession();
         session.setAttribute("loggedUser", user);
 
-        // 🔀 ROLE FORK
-        if (user.getRole() == User.Role.ADMIN) {
-            response.sendRedirect("admin-dashboard.html");
-        } else {
-            response.sendRedirect("index.html");
-        }
+        response.sendRedirect("index.html");
     }
 }

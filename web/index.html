@@ -167,7 +167,6 @@
             list.innerHTML = `<div class="col-span-full text-center py-20 text-gray-500">No games to show.</div>`;
             return;
         }
-
         games.forEach(game => {
             const isOwned = ownedIds.includes(game.id);
             const tags = (game.platforms || []).map(p => `

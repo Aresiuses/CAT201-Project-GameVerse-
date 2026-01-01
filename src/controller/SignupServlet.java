@@ -1,7 +1,7 @@
-package controller;
+package src.controller;
 
-import data.DatabaseHandler;
-import model.User;
+import src.data.DatabaseHandler;
+import src.model.User;
 import util.PasswordUtil;
 
 import javax.servlet.*;

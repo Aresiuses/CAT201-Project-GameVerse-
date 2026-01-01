@@ -30,8 +30,6 @@ private static final String TWITCH_CLIENT_ID = "YOUR_TWITCH_CLIENT_ID";
 private static final String TWITCH_CLIENT_SECRET = "YOUR_TWITCH_CLIENT_SECRET";
 ```
 
-Please also do the implementation for RAWG API at `src/service/GameDataAPIServiceRAWG.java`
-
 ### 2. Deployment Guide (IntelliJ IDEA)
 
 1. Open Project in IntelliJ.
@@ -77,3 +75,9 @@ A new field, downloadSizeGB, and a business method, startDownload(), were added 
 Git Usage Reminder:
 
 Please commit your changes frequently, use meaningful commit messages, and coordinate branching to avoid merge conflicts!
+
+### 5. Project Update
+1. Login functionalities
+2. Menu bar for users with divided view for admin and customer (admin able to see add game to store option on the menu)
+3. Update all of codes to be able to handle games with multiplatform.
+4. 

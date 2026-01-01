@@ -1,12 +1,13 @@
-package controller;
+package src.controller;
 
 import com.google.gson.Gson;
-import model.User;
-
+import src.model.User;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.*;
 import javax.servlet.http.*;
 import java.io.IOException;
 
+@WebServlet("/api/profile")
 public class UserProfileServlet extends HttpServlet {
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -18,7 +19,7 @@ public class UserProfileServlet extends HttpServlet {
                 : null;
 
         if (user == null) {
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
 

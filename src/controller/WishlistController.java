@@ -4,6 +4,8 @@ import src.data.DatabaseHandler;
 import src.model.Game;
 import src.model.User;
 
+import com.google.gson.Gson;
+
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.*;
@@ -20,24 +22,26 @@ public class WishlistController extends HttpServlet {
         db = new DatabaseHandler();
     }
 
-    // ================= VIEW WISHLIST =================
+    // ================= VIEW WISHLIST (JSON) =================
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
         HttpSession session = request.getSession(false);
+
         if (session == null || session.getAttribute("user") == null) {
-            response.sendRedirect("login.html");
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
 
         User user = (User) session.getAttribute("user");
 
         List<Game> wishlist = db.getUserWishlist(user.getId());
-        request.setAttribute("wishlist", wishlist);
 
-        request.getRequestDispatcher("wishlist.jsp")
-               .forward(request, response);
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+
+        new Gson().toJson(wishlist, response.getWriter());
     }
 
     // ================= ADD TO WISHLIST =================
@@ -46,16 +50,18 @@ public class WishlistController extends HttpServlet {
             throws ServletException, IOException {
 
         HttpSession session = request.getSession(false);
+
         if (session == null || session.getAttribute("user") == null) {
-            response.sendRedirect("login.html");
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
 
         User user = (User) session.getAttribute("user");
         String gameId = request.getParameter("gameId");
 
-        DatabaseHandler.addGameToWishlist(user.getId(), gameId);
+        boolean success = DatabaseHandler.addGameToWishlist(user.getId(), gameId);
 
-        response.sendRedirect("wishlist");
+        response.setContentType("application/json");
+        response.getWriter().write("{\"success\": " + success + "}");
     }
 }

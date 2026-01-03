@@ -3,165 +3,133 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Library - GameVerse</title>
+    <title>Account Settings | GameVerse</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body {
-            background-color: #0d1117;
-            color: #c9d1d9;
-            font-family: 'Inter', sans-serif;
-        }
-        .glass {
-            background: rgba(22, 27, 34, 0.8);
-            backdrop-filter: blur(10px);
-            border: 1px solid #30363d;
-        }
-        .library-card {
-            background-color: #161b22;
-            border: 1px solid #30363d;
-            transition: all 0.3s ease;
-        }
-        .library-card:hover {
-            border-color: #eb5757;
-            transform: translateY(-5px);
-        }
+        body { font-family: 'Inter', sans-serif; background-color: #0d1117; color: #c9d1d9; }
+        .glass { background: rgba(22, 27, 34, 0.8); backdrop-filter: blur(10px); border: 1px solid #30363d; }
+        .input-box { background: #0d1117; border: 1px solid #30363d; color: white; transition: border-color 0.2s; }
+        .input-box:focus { border-color: #eb5757; outline: none; }
     </style>
 </head>
 <body class="min-h-screen">
 
-<!-- Navbar -->
 <nav class="p-6 border-b border-gray-800 flex justify-between items-center glass sticky top-0 z-50">
-    <div class="flex items-center space-x-4">
-        <a href="index.html" class="text-2xl font-bold text-red-500">GameVerse</a>
-    </div>
+    <a href="index.html" class="text-2xl font-bold text-red-500">GameVerse</a>
     <div class="space-x-6 flex items-center">
-        <a href="index.html" class="text-sm hover:text-red-400 transition">Storefront</a>
+        <a href="index.html" class="text-sm hover:text-red-400 transition">Back to Store</a>
         <button onclick="logout()" class="text-sm text-gray-500 hover:text-red-500 transition">Logout</button>
     </div>
 </nav>
 
-<main class="container mx-auto py-12 px-4 max-w-6xl">
+<main class="container mx-auto py-12 px-4 max-w-2xl">
+    <h1 class="text-4xl font-black text-white mb-2">Account Settings</h1>
+    <p class="text-gray-500 mb-10 border-b border-gray-800 pb-4">Manage your public profile and security.</p>
 
-    <!-- User Info Section -->
-    <section class="glass rounded-2xl p-8 mb-12 flex flex-col md:flex-row items-center justify-between border-l-4 border-red-500">
-        <div>
-            <h1 id="welcome-msg" class="text-4xl font-black text-white mb-2">Loading Profile...</h1>
-            <p id="user-email" class="text-gray-500"></p>
+    <!-- General Profile Section -->
+    <section class="glass p-8 rounded-2xl mb-8">
+        <h2 class="text-xl font-bold text-white mb-6 flex items-center">
+            <svg class="w-5 h-5 mr-2 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+            Public Identity
+        </h2>
+
+        <div class="space-y-6">
+            <div>
+                <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Email Address (Primary)</label>
+                <input type="text" id="display-email" disabled class="w-full p-3 rounded-lg bg-gray-800 border border-gray-700 text-gray-400 cursor-not-allowed">
+                <p class="text-[10px] text-gray-600 mt-2">Email changes are restricted to staff assistance.</p>
+            </div>
+
+            <form onsubmit="updateUsername(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Display Username</label>
+                    <input type="text" id="display-username" required class="input-box w-full p-3 rounded-lg">
+                </div>
+                <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg font-bold transition text-sm">Save Username</button>
+            </form>
         </div>
-        <div id="role-badge" class="mt-4 md:mt-0"></div>
     </section>
 
-    <!-- Library Section -->
-    <section>
-        <div class="flex items-center justify-between mb-8 border-b border-gray-800 pb-4">
-            <h2 class="text-2xl font-bold text-white flex items-center">
-                <svg class="w-6 h-6 mr-2 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
-                Digital Collection
-            </h2>
-            <span id="game-count" class="text-sm bg-gray-800 px-3 py-1 rounded-full text-gray-400 font-bold">0 Games</span>
-        </div>
+    <!-- Password Security Section -->
+    <section class="glass p-8 rounded-2xl">
+        <h2 class="text-xl font-bold text-white mb-6 flex items-center">
+            <svg class="w-5 h-5 mr-2 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+            Security & Password
+        </h2>
 
-        <!-- Library Grid -->
-        <div id="library-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <!-- Skeleton Loader -->
-            <div class="animate-pulse bg-gray-800 h-48 rounded-xl"></div>
-            <div class="animate-pulse bg-gray-800 h-48 rounded-xl"></div>
-            <div class="animate-pulse bg-gray-800 h-48 rounded-xl"></div>
-        </div>
-
-        <!-- Empty State -->
-        <div id="empty-library" class="hidden text-center py-20 glass rounded-2xl">
-            <p class="text-xl text-gray-500 mb-6">Your library is currently empty.</p>
-            <a href="index.html" class="bg-red-600 hover:bg-red-700 text-white px-8 py-3 rounded-lg font-bold transition">Visit the Store</a>
-        </div>
+        <form onsubmit="updatePassword(event)" class="space-y-4">
+            <div>
+                <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Current Password</label>
+                <input type="password" id="current-pass" required class="input-box w-full p-3 rounded-lg">
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">New Password</label>
+                <input type="password" id="new-pass" required class="input-box w-full p-3 rounded-lg">
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Confirm New Password</label>
+                <input type="password" id="confirm-pass" required class="input-box w-full p-3 rounded-lg">
+            </div>
+            <button type="submit" class="bg-gray-800 hover:bg-red-600 border border-gray-700 text-white px-6 py-2 rounded-lg font-bold transition text-sm">Change Password</button>
+        </form>
     </section>
 </main>
 
 <script>
-    const PROFILE_API = '/api/profile';
-    const GAME_API = '/api/games';
+    async function loadUserData() {
+        const res = await fetch('/api/profile');
+        if (!res.ok) { window.location.href = 'login.html'; return; }
+        const user = await res.json();
 
-    async function loadProfile() {
-        try {
-            const response = await fetch(PROFILE_API);
-            if (!response.ok) {
-                window.location.href = 'login.html';
-                return;
-            }
+        document.getElementById('display-email').value = user.email;
+        document.getElementById('display-username').value = user.username;
+    }
 
-            const user = await response.json();
+    async function updateUsername(e) {
+        e.preventDefault();
+        const username = document.getElementById('display-username').value;
 
-            // 1. Update Profile Info
-            document.getElementById('welcome-msg').innerText = `Welcome, ${user.username}!`;
-            document.getElementById('user-email').innerText = user.email;
-            document.getElementById('game-count').innerText = `${user.ownedGameIds.length} Games`;
+        const res = await fetch('/api/profile', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'updateUsername', username: username })
+        });
 
-            if (user.role === 'ADMIN') {
-                document.getElementById('role-badge').innerHTML = `
-                        <span class="bg-red-900 text-red-200 px-4 py-2 rounded-lg text-xs font-black uppercase tracking-widest">Administrator</span>
-                    `;
-            }
+        const result = await res.json();
+        alert(result.message);
+        if(res.ok) location.reload();
+    }
 
-            // 2. Load Library Games
-            if (user.ownedGameIds.length === 0) {
-                document.getElementById('library-grid').innerHTML = '';
-                document.getElementById('empty-library').classList.remove('hidden');
-            } else {
-                renderLibrary(user.ownedGameIds);
-            }
+    async function updatePassword(e) {
+        e.preventDefault();
+        const current = document.getElementById('current-pass').value;
+        const newPass = document.getElementById('new-pass').value;
+        const confirm = document.getElementById('confirm-pass').value;
 
-        } catch (error) {
-            console.error("Error loading profile", error);
+        if (newPass !== confirm) { alert("New passwords do not match!"); return; }
+
+        const res = await fetch('/api/profile', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                action: 'updatePassword',
+                currentPassword: current,
+                newPassword: newPass
+            })
+        });
+
+        const result = await res.json();
+        alert(result.message);
+        if(res.ok) {
+            document.getElementById('current-pass').value = '';
+            document.getElementById('new-pass').value = '';
+            document.getElementById('confirm-pass').value = '';
         }
     }
 
-    async function renderLibrary(gameIds) {
-        const grid = document.getElementById('library-grid');
-        grid.innerHTML = ''; // Clear skeleton
+    function logout() { window.location.href = '/logout'; }
 
-        // We fetch each game's details based on the ID stored in user profile
-        for (const id of gameIds) {
-            try {
-                const res = await fetch(`${GAME_API}?id=${id}`);
-                if (res.ok) {
-                    const game = await res.json();
-                    grid.innerHTML += `
-                            <div class="library-card rounded-xl overflow-hidden flex flex-col">
-                                <div class="relative h-40">
-                                    <img src="${game.imageURL}" class="w-full h-full object-cover opacity-60" onerror="this.src='https://placehold.co/400x250?text=Digital+License'">
-                                    <div class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-[#161b22] to-transparent">
-                                        <h3 class="text-xl font-bold text-white">${game.title}</h3>
-                                    </div>
-                                </div>
-                                <div class="p-4 flex-grow flex flex-col justify-between">
-                                    <div class="flex flex-wrap gap-1 mb-4">
-                                        ${(game.platforms || []).map(p => `
-                                            <span class="text-[10px] bg-gray-800 text-gray-400 px-2 py-0.5 rounded border border-gray-700 font-bold uppercase">${p}</span>
-                                        `).join('')}
-                                    </div>
-                                    <button onclick="simulateDownload('${game.title}')" class="w-full bg-gray-800 hover:bg-red-600 hover:text-white text-red-500 py-3 rounded-lg font-bold transition flex items-center justify-center space-x-2 border border-gray-700">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                                        <span>Download Now</span>
-                                    </button>
-                                </div>
-                            </div>
-                        `;
-                }
-            } catch (e) {
-                console.error(`Failed to fetch game ${id}`, e);
-            }
-        }
-    }
-
-    function simulateDownload(title) {
-        alert(`Preparing ${title} for download. Your digital license is verified.`);
-    }
-
-    function logout() {
-        window.location.href = '/LogoutServlet';
-    }
-
-    window.onload = loadProfile;
+    window.onload = loadUserData;
 </script>
 </body>
 </html>

@@ -7,67 +7,75 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #0d1117; color: #c9d1d9; }
-        .game-card { background-color: #161b22; transition: transform 0.3s, box-shadow 0.3s; border: 1px solid #30363d; cursor: pointer; }
-        .game-card:hover { transform: translateY(-8px) scale(1.02); box-shadow: 0 15px 30px rgba(235, 87, 87, 0.3); }
+        .game-card { background-color: #161b22; transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s; border: 1px solid #30363d; cursor: pointer; }
+        .game-card:hover { transform: translateY(-8px) scale(1.02); box-shadow: 0 15px 30px rgba(235, 87, 87, 0.3); border-color: #eb5757; }
         #admin-sidebar { transition: transform 0.3s ease-in-out; background-color: #161b22; border-right: 1px solid #30363d; }
         .sidebar-hidden { transform: translateX(-100%); }
-        .sidebar-visible { transform: translateX(0); }
         .owned-badge { background: linear-gradient(45deg, #059669, #10b981); }
         .progress-bar { transition: width 0.3s ease; }
+        .glass { background: rgba(22, 27, 34, 0.7); backdrop-filter: blur(8px); }
+
+        .toast-notification { animation: slideIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4); }
+        @keyframes slideIn { from { transform: translateX(120%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        .toast-fade-out { animation: slideOut 0.4s ease-in forwards; }
+        @keyframes slideOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(120%); opacity: 0; } }
     </style>
 </head>
 <body class="min-h-screen">
 
-<!-- Sidebar Navigation -->
+<!-- Notifications -->
+<div id="notification-container" class="fixed bottom-5 right-5 space-y-3 z-[100] pointer-events-none"></div>
+
+<!-- Separated Sidebar Menu -->
 <div id="admin-sidebar" class="fixed inset-y-0 left-0 w-64 z-50 sidebar-hidden shadow-2xl p-6 flex flex-col">
     <div class="flex justify-between items-center mb-8">
-        <h2 class="text-xl font-bold text-red-500">Menu</h2>
+        <h2 class="text-xl font-bold text-red-500 italic">GameVerse</h2>
         <button onclick="toggleMenu()" class="text-gray-400 hover:text-white text-2xl">&times;</button>
     </div>
-    <nav id="sidebar-nav" class="space-y-4 flex-grow"></nav>
+
+    <nav id="sidebar-nav" class="space-y-6 flex-grow overflow-y-auto">
+        <!-- JS dynamic content based on role -->
+    </nav>
 </div>
 
-<!-- Header -->
-<header class="bg-gray-900 shadow-2xl sticky top-0 z-10">
+<header class="bg-gray-900/80 backdrop-blur-md shadow-2xl sticky top-0 z-40 border-b border-gray-800">
     <nav class="container mx-auto px-4 py-4 flex justify-between items-center">
         <div class="flex items-center space-x-4">
             <button onclick="toggleMenu()" class="p-2 rounded-lg bg-gray-800 hover:bg-gray-700 transition">
-                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"></path></svg>
             </button>
-            <h1 class="text-3xl font-extrabold text-red-500 cursor-pointer" onclick="showStore()">GameVerse</h1>
+            <h1 class="text-3xl font-black text-red-500 cursor-pointer" onclick="showStore()">GameVerse</h1>
         </div>
 
         <div class="flex-grow flex justify-end items-center space-x-4">
-            <select id="platform-filter" class="hidden md:block p-2 rounded-lg bg-gray-700 text-white border-none focus:ring-2 focus:ring-red-500" onchange="fetchGames()">
+            <select id="platform-filter" class="hidden md:block p-2 rounded-lg bg-gray-800 text-sm text-gray-300 border border-gray-700 focus:ring-2 focus:ring-red-500 outline-none" onchange="fetchGames()">
                 <option value="">All Platforms</option>
                 <option value="PC">PC</option><option value="PS5">PS5</option><option value="XBOX">Xbox</option><option value="SWITCH">Switch</option>
             </select>
-            <input type="text" id="search-input" placeholder="Search games..." class="px-4 py-2 rounded-lg bg-gray-700 text-white w-40 sm:w-64 focus:outline-none focus:ring-2 focus:ring-red-500" onkeyup="fetchGames()">
+            <input type="text" id="search-input" placeholder="Search games..." class="px-4 py-2 rounded-lg bg-gray-800 text-white w-40 sm:w-64 border border-gray-700 focus:ring-2 focus:ring-red-500" onkeyup="fetchGames()">
 
-            <a href="cart.html" class="relative p-2 bg-gray-800 rounded-lg hover:text-red-500 transition group border border-gray-700 hover:border-red-500">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-                <span id="cart-count" class="absolute -top-1 -right-1 bg-red-600 text-white text-[10px] font-bold px-1.5 rounded-full">0</span>
-            </a>
-
+            <div class="flex items-center space-x-2">
+                <a href="wishlist.html" class="p-2 bg-gray-800 rounded-lg hover:text-red-500 transition border border-gray-700">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
+                </a>
+                <a href="cart.html" class="relative p-2 bg-gray-800 rounded-lg hover:text-red-500 transition border border-gray-700">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                    <span id="cart-count" class="absolute -top-1 -right-1 bg-red-600 text-white text-[10px] font-bold px-1.5 rounded-full border border-gray-900">0</span>
+                </a>
+            </div>
             <div id="auth-section"></div>
         </div>
-
-        <a href="cart.html" class="relative ml-4 p-2 rounded-lg bg-gray-800 hover:bg-gray-700 transition group border border-gray-700 hover:border-red-500">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-gray-300 group-hover:text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-            </svg>
-            <span id="cart-count" class="absolute -top-1 -right-1 bg-red-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full hidden">0</span>
-        </a>
     </nav>
 </header>
 
 <main class="container mx-auto p-8">
-    <div class="flex justify-between items-end mb-8 border-b-2 border-red-500 pb-2">
-        <h2 id="page-title" class="text-4xl font-extrabold text-white">Catalog</h2>
-        <p id="item-count" class="text-gray-500 font-medium"></p>
+    <div class="flex justify-between items-end mb-10 border-b-2 border-red-600/30 pb-4">
+        <div>
+            <h2 id="page-title" class="text-5xl font-black text-white italic uppercase tracking-tighter">Catalog</h2>
+            <p id="item-count" class="text-gray-500 text-sm mt-1"></p>
+        </div>
     </div>
-
-    <div id="game-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
+    <div id="game-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8"></div>
 </main>
 
 <script>
@@ -75,42 +83,24 @@
     const PROFILE_API = 'api/profile';
     const CART_API = 'api/cart';
     const LIBRARY_API = 'api/library';
+    const WISHLIST_API = 'api/wishlist';
 
     let currentUser = null;
     let viewMode = 'store';
-    let downloadingIds = {};
 
     function toggleMenu() { document.getElementById('admin-sidebar').classList.toggle('sidebar-hidden'); }
 
-    function showStore() {
-        viewMode = 'store';
-        document.getElementById('page-title').innerText = 'Catalog';
-        document.getElementById('platform-filter').classList.remove('hidden');
-        fetchGames();
+    function showNotification(message, isError = false) {
+        const container = document.getElementById('notification-container');
+        const notification = document.createElement('div');
+        notification.className = `toast-notification pointer-events-auto p-4 rounded-xl flex items-center gap-3 border glass ${isError ? 'border-red-500 text-red-200' : 'border-green-500 text-green-200'}`;
+        notification.innerHTML = `<div class="${isError ? 'text-red-500' : 'text-green-500'}"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></div><div><p class="text-sm font-bold">${message}</p></div>`;
+        container.appendChild(notification);
+        setTimeout(() => { notification.classList.add('toast-fade-out'); notification.addEventListener('animationend', () => notification.remove()); }, 3500);
     }
 
-    function showLibrary() {
-        viewMode = 'library';
-        document.getElementById('page-title').innerText = 'My Library';
-        document.getElementById('platform-filter').classList.add('hidden');
-        fetchGames();
-        if(!document.getElementById('admin-sidebar').classList.contains('sidebar-hidden')) toggleMenu();
-    }
-
-    function showStore() {
-        viewMode = 'store';
-        document.getElementById('page-title').innerText = 'Catalog';
-        document.getElementById('platform-filter').classList.remove('hidden');
-        fetchGames();
-    }
-
-    function showLibrary() {
-        viewMode = 'library';
-        document.getElementById('page-title').innerText = 'My Library';
-        document.getElementById('platform-filter').classList.add('hidden');
-        fetchGames();
-        toggleMenu();
-    }
+    function showStore() { viewMode = 'store'; document.getElementById('page-title').innerText = 'Catalog'; fetchGames(); }
+    function showLibrary() { viewMode = 'library'; document.getElementById('page-title').innerText = 'My Library'; fetchGames(); toggleMenu(); }
 
     async function checkLoginStatus() {
         const authSection = document.getElementById('auth-section');
@@ -119,191 +109,141 @@
             const response = await fetch(PROFILE_API);
             if (response.ok) {
                 currentUser = await response.json();
-                authSection.innerHTML = `<span class="text-gray-400 font-medium hidden sm:inline">Hi, ${currentUser.username}</span>`;
+                authSection.innerHTML = `
+                    <button onclick="window.location.href='profile.html'" class="flex items-center space-x-2 group">
+                        <span class="text-gray-400 text-sm group-hover:text-white transition">Hi, ${currentUser.username}</span>
+                        <div class="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center font-bold text-white text-xs border border-red-400">
+                            ${currentUser.username[0].toUpperCase()}
+                        </div>
+                    </button>`;
 
                 let navHtml = `
-                    <button onclick="showStore()" class="w-full text-left p-3 rounded-lg hover:bg-gray-800 transition">Storefront</button>
-                    <button onclick="showLibrary()" class="w-full text-left p-3 rounded-lg hover:bg-gray-800 transition">My Library</button>
-                    <a href="profile.html" class="block p-3 rounded-lg hover:bg-gray-800 transition">Account Settings</a>
+                    <button onclick="showStore()" class="w-full text-left p-3 rounded-lg hover:bg-gray-800 transition flex items-center space-x-3">
+                        <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
+                        <span>Storefront</span>
+                    </button>
+                    <button onclick="showLibrary()" class="w-full text-left p-3 rounded-lg hover:bg-gray-800 transition flex items-center space-x-3">
+                        <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 7v10c0 2 1 3 3 3h10c2 0 3-1 3-3V7c0-2-1-3-3-3H7c-2 0-3 1-3 3zM12 4v16m-4-8h8"></path></svg>
+                        <span>My Library</span>
+                    </button>
+                    <a href="wishlist.html" class="block p-3 rounded-lg hover:bg-gray-800 transition flex items-center space-x-3">
+                        <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
+                        <span>Wishlist</span>
+                    </a>
+                    <a href="profile.html" class="block p-3 rounded-lg hover:bg-gray-800 transition flex items-center space-x-3">
+                        <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                        <span>Settings</span>
+                    </a>
                 `;
 
                 if (currentUser.role === 'ADMIN') {
                     navHtml += `
-                        <div class="border-t border-gray-700 pt-4 mt-4">
-                            <p class="text-xs text-gray-500 uppercase tracking-widest mb-3 px-3">Staff Only</p>
-                            <a href="admin.html" class="block p-3 rounded-lg hover:bg-red-900/20 hover:text-red-400 transition">Add New Game</a>
+                        <div class="border-t border-gray-800 pt-4 mt-4">
+                            <p class="text-[10px] text-gray-600 font-bold uppercase mb-2 px-3">Management</p>
+                            <a href="admin.html" class="block p-3 rounded-lg hover:bg-red-900/20 text-red-400 transition flex items-center space-x-3">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                <span>Add New Product</span>
+                            </a>
                         </div>`;
                 }
-                navHtml += `<button onclick="logout()" class="w-full text-left p-3 rounded-lg hover:bg-red-900/20 text-red-500 transition mt-10">Logout</button>`;
+                navHtml += `<button onclick="logout()" class="w-full text-left p-3 rounded-lg hover:bg-red-900/20 text-red-600 transition mt-10 font-bold">Sign Out</button>`;
                 sidebarNav.innerHTML = navHtml;
             } else {
-                authSection.innerHTML = `<a href="login.html" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-bold">Login</a>`;
-                sidebarNav.innerHTML = `<div class="py-10 text-center"><a href="login.html" class="block w-full bg-red-600 text-white font-bold py-3 rounded-lg">Login to GameVerse</a></div>`;
+                authSection.innerHTML = `<a href="login.html" class="bg-red-600 hover:bg-red-700 text-white px-5 py-2 rounded-lg font-black text-sm transition shadow-lg shadow-red-900/30">LOGIN</a>`;
+                sidebarNav.innerHTML = `<div class="py-10 text-center"><a href="login.html" class="block w-full bg-red-600 text-white font-bold py-3 rounded-lg">Sign In to Access Collection</a></div>`;
             }
-        } catch (e) { console.error("Auth check failed", e); }
+        } catch (e) { console.error(e); }
     }
 
     async function fetchGames() {
         const q = document.getElementById('search-input').value;
         const p = document.getElementById('platform-filter').value;
-        const list = document.getElementById('game-list');
-
-        list.innerHTML = `<div class="col-span-full text-center py-20 text-gray-500 animate-pulse">Synchronizing Data...</div>`;
-
         try {
-            const [gamesRes, libRes] = await Promise.all([
+            const [gamesRes, libRes, wishRes] = await Promise.all([
                 fetch(`${GAME_API}?q=${encodeURIComponent(q)}&platform=${encodeURIComponent(p)}`),
-                fetch(LIBRARY_API).catch(() => null)
+                fetch(LIBRARY_API).catch(() => null),
+                fetch(WISHLIST_API).catch(() => null)
             ]);
 
             const games = await gamesRes.json();
-            const library = libRes && libRes.ok ? await libRes.json() : [];
+            const library = (libRes && libRes.ok) ? await libRes.json() : [];
+            const wishlist = (wishRes && wishRes.ok) ? await wishRes.json() : [];
+
             const ownedIds = library.map(g => g.id);
+            const wishIds = wishlist.map(g => g.id);
 
             if (viewMode === 'library') {
-                const myGames = games.filter(g => ownedIds.includes(g.id));
-                renderGames(myGames, ownedIds, true);
+                renderGames(games.filter(g => ownedIds.includes(g.id)), ownedIds, wishIds, true);
             } else {
-                renderGames(games, ownedIds, false);
+                renderGames(games, ownedIds, wishIds, false);
             }
-        } catch (e) {
-            list.innerHTML = `<div class="col-span-full text-center py-20 text-red-500">Could not connect to database.</div>`;
-        }
+        } catch (e) { console.error(e); }
     }
 
-    function isDownloaded(gameId) {
-        const downloaded = JSON.parse(localStorage.getItem('downloaded_games') || '[]');
-        return downloaded.includes(gameId);
-    }
-
-    function renderGames(games, ownedIds, isLibraryView) {
+    function renderGames(games, ownedIds, wishIds, isLibraryView) {
         const list = document.getElementById('game-list');
-        const countDisplay = document.getElementById('item-count');
         list.innerHTML = '';
-        countDisplay.innerText = `${games.length} products found`;
-
-        if (games.length === 0) {
-            list.innerHTML = `<div class="col-span-full text-center py-20 text-gray-500">Nothing found here yet.</div>`;
-            return;
-        }
+        document.getElementById('item-count').innerText = `${games.length} products found`;
 
         games.forEach(game => {
             const isOwned = ownedIds.includes(game.id);
-            const downloaded = isDownloaded(game.id);
-            const isDownloading = downloadingIds[game.id] !== undefined;
+            const isWishlisted = wishIds.includes(game.id);
 
-            const tags = (game.platforms || []).map(p => `<span class="bg-gray-800 text-[10px] px-2 py-0.5 rounded-full text-gray-400 uppercase font-bold border border-gray-700">${p}</span>`).join('');
-
-            let actionButton = '';
-            let downloadOverlay = '';
-
-            if (isLibraryView) {
-                // Logic for "My Library" View
-                if (isDownloading) {
-                    const progress = downloadingIds[game.id];
-                    actionButton = `<button disabled class="w-full bg-gray-700 text-gray-400 py-2 rounded-lg font-bold cursor-wait">Downloading ${progress}%</button>`;
-                    downloadOverlay = `
-                        <div class="absolute bottom-0 left-0 right-0 h-1 bg-gray-800">
-                            <div class="progress-bar h-full bg-blue-500 shadow-[0_0_10px_#3b82f6]" style="width: ${progress}%"></div>
-                        </div>`;
-                } else if (downloaded) {
-                    actionButton = `<button onclick="event.stopPropagation(); playId('${game.id}', '${game.title}')" class="w-full bg-green-600 hover:bg-green-500 text-white py-2 rounded-lg font-bold transition">Play Now</button>`;
-                } else {
-                    actionButton = `<button onclick="event.stopPropagation(); startDownload('${game.id}', '${game.title}')" class="w-full bg-blue-600 hover:bg-blue-500 text-white py-2 rounded-lg font-bold transition flex items-center justify-center gap-2">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                        Download
-                    </button>`;
-                }
-            } else {
-                // Logic for "Storefront" View
-                if (isOwned) {
-                    actionButton = `<button onclick="event.stopPropagation(); showLibrary()" class="w-full bg-gray-800 text-white py-2 rounded-lg font-bold transition border border-gray-600 hover:bg-gray-700">View in Library</button>`;
-                } else {
-                    actionButton = `<button onclick="event.stopPropagation(); addToCart('${game.id}', '${game.title}')" class="w-full bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg font-bold transition">Add to Cart</button>`;
-                }
-            }
-
-            // Context-aware button: Buy, In Library, or Play
-            let actionButton = '';
-            if (isLibraryView) {
-                actionButton = `<button onclick="event.stopPropagation(); playId('${game.id}')" class="w-full bg-green-600 hover:bg-green-500 text-white py-2 rounded-lg font-bold transition">Play Now</button>`;
-            } else if (isOwned) {
-                actionButton = `<button disabled class="w-full bg-gray-800 text-gray-500 py-2 rounded-lg font-bold cursor-not-allowed border border-gray-700">In Library</button>`;
-            } else {
-                actionButton = `<button onclick="event.stopPropagation(); addToCart('${game.id}', '${game.title}')" class="w-full bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg font-bold transition">Add to Cart</button>`;
-            }
+            const actionButton = isLibraryView
+                ? `<button onclick="event.stopPropagation(); playId('${game.id}', '${game.title}')" class="w-full bg-green-600 hover:bg-green-500 text-white py-2 rounded-lg font-bold">PLAY NOW</button>`
+                : isOwned
+                    ? `<button onclick="event.stopPropagation(); showLibrary()" class="w-full bg-gray-800 hover:bg-gray-700 text-white py-2 rounded-lg font-bold border border-gray-600">IN LIBRARY</button>`
+                    : `<button onclick="event.stopPropagation(); addToCart('${game.id}', '${game.title}')" class="w-full bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg font-bold">ADD TO CART</button>`;
 
             list.innerHTML += `
-                <div class="game-card rounded-xl overflow-hidden p-4 flex flex-col justify-between relative" onclick="window.location.href='game-details.html?id=${game.id}'">
+                <div class="game-card rounded-2xl overflow-hidden p-4 flex flex-col justify-between relative" onclick="window.location.href='game-details.html?id=${game.id}'">
                     <div>
-                        <div class="relative overflow-hidden rounded-lg mb-4">
-                            <img src="${game.imageURL}" class="w-full h-40 object-cover" onerror="this.src='https://placehold.co/400x250?text=Digital+License'">
-                            ${isOwned ? '<span class="absolute top-2 right-2 owned-badge text-white text-[10px] px-2 py-1 rounded font-bold shadow-lg">OWNED</span>' : ''}
-                            ${downloadOverlay}
+                        <div class="relative overflow-hidden rounded-xl mb-4">
+                            <img src="${game.imageURL}" class="w-full h-40 object-cover" onerror="this.src='https://placehold.co/400x250?text=License'">
+
+                            ${!isLibraryView ? `
+                                <button onclick="event.stopPropagation(); toggleWishlist('${game.id}', '${game.title}')"
+                                        class="absolute top-2 left-2 p-1.5 glass rounded-full transition ${isWishlisted ? 'text-red-500 fill-current' : 'text-gray-400 hover:text-red-400'}">
+                                    <svg class="w-4 h-4" fill="${isWishlisted ? 'currentColor' : 'none'}" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
+                                </button>
+                            ` : ''}
+
+                            ${isOwned ? '<span class="absolute top-2 right-2 owned-badge text-white text-[9px] px-2 py-1 rounded font-black shadow-lg">OWNED</span>' : ''}
                         </div>
-                        <div class="flex flex-wrap gap-1 mb-2">${tags}</div>
-                        <h3 class="font-bold text-white text-lg mb-1 truncate">${game.title}</h3>
-                        <p class="text-sm text-gray-400 mb-2">${game.genre || 'Game'}</p>
+                        <h3 class="font-bold text-white text-lg mb-1 truncate uppercase">${game.title}</h3>
+                        <p class="text-[10px] text-gray-500 uppercase font-black tracking-widest mb-3">${game.genre}</p>
                     </div>
                     <div>
-                        <p class="text-red-400 font-bold text-xl mb-4">
-                            ${isOwned ? '<span class="text-gray-500 text-sm italic font-normal">' + (downloaded ? 'Installed' : 'Purchased') + '</span>' : '$' + game.price.toFixed(2)}
-                        </p>
+                        <p class="text-red-500 font-black text-2xl mb-4">${isOwned ? '<span class="text-xs text-gray-600 italic">PURCHASED</span>' : '$' + game.price.toFixed(2)}</p>
                         ${actionButton}
                     </div>
                 </div>`;
         });
     }
 
-    function startDownload(id, title) {
-        if (downloadingIds[id] !== undefined) return;
-
-        downloadingIds[id] = 0;
-        const interval = setInterval(() => {
-            downloadingIds[id] += Math.floor(Math.random() * 15) + 5;
-
-            if (downloadingIds[id] >= 100) {
-                downloadingIds[id] = 100;
-                clearInterval(interval);
-
-                const downloaded = JSON.parse(localStorage.getItem('downloaded_games') || '[]');
-                if (!downloaded.includes(id)) downloaded.push(id);
-                localStorage.setItem('downloaded_games', JSON.stringify(downloaded));
-
-                delete downloadingIds[id];
-                fetchGames();
-            } else {
-                fetchGames();
-            }
-        }, 600);
+    async function toggleWishlist(gameId, title) {
+        const res = await fetch(`api/wishlist?gameId=${gameId}`, { method: 'POST' });
+        if (res.ok) {
+            const data = await res.json();
+            showNotification(data.message);
+            fetchGames();
+        } else {
+            showNotification("Please login to save wishlist.", true);
+        }
     }
 
     async function addToCart(gameId, title) {
-        try {
-            const res = await fetch(`${CART_API}?gameId=${gameId}`, { method: 'POST' });
-            if (res.ok) {
-                loadCartCount();
-                console.log(`Added ${title} to cart`);
-            } else {
-                alert("Please login to use the cart.");
-            }
-        } catch (e) { console.error("Cart error", e); }
+        const res = await fetch(`${CART_API}?gameId=${gameId}`, { method: 'POST' });
+        if (res.ok) { loadCartCount(); showNotification(`${title} added to cart!`); }
     }
 
     async function loadCartCount() {
-        try {
-            const res = await fetch(CART_API);
-            if (res.ok) {
-                const cart = await res.json();
-                document.getElementById('cart-count').innerText = cart.items ? cart.items.length : 0;
-            }
-        } catch (e) {}
+        const res = await fetch(CART_API);
+        if (res.ok) { const cart = await res.json(); document.getElementById('cart-count').innerText = cart.items ? cart.items.length : 0; }
     }
 
-    function logout() { window.location.href = '/LogoutServlet'; }
-    function playId(id, title) {
-        alert(`Launching ${title} engine...\nVerified license for Game ID: ${id}`);
-    }
+    function logout() { window.location.href = '/logout'; }
+    function playId(id, title) { showNotification(`Launching ${title}...`); }
 
     window.onload = () => { checkLoginStatus(); fetchGames(); loadCartCount(); };
 </script>

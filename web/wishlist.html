@@ -2,39 +2,86 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>My Wishlist - GameVerse</title>
+    <title>My Wishlist | GameVerse</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script defer src="wishlist.js"></script>
-
     <style>
-        body {
-            background-color: #0d1117;
-            color: #c9d1d9;
-            font-family: 'Inter', sans-serif;
-        }
-        .card {
-            background-color: #161b22;
-            border: 1px solid #30363d;
-        }
+        body { background-color: #0d1117; color: #c9d1d9; font-family: 'Inter', sans-serif; }
+        .glass { background: rgba(22, 27, 34, 0.8); backdrop-filter: blur(10px); border: 1px solid #30363d; }
+        .wishlist-card { background-color: #161b22; border: 1px solid #30363d; transition: all 0.3s ease; }
+        .wishlist-card:hover { border-color: #eb5757; transform: translateY(-5px); }
     </style>
 </head>
+<body class="min-h-screen">
 
-<body class="min-h-screen p-6">
+<nav class="p-6 border-b border-gray-800 flex justify-between items-center glass sticky top-0 z-50">
+    <a href="index.html" class="text-2xl font-bold text-red-500">GameVerse</a>
+    <a href="index.html" class="text-sm hover:text-red-400 transition">Back to Store</a>
+</nav>
 
-<h1 class="text-3xl font-extrabold text-red-500 mb-6">
-    ❤️ My Wishlist
-</h1>
+<main class="container mx-auto py-12 px-4 max-w-6xl">
+    <div class="flex items-center space-x-4 mb-10 border-b border-gray-800 pb-4">
+        <h1 class="text-4xl font-black text-white">❤️ My Wishlist</h1>
+        <span id="wishlist-count" class="bg-gray-800 px-3 py-1 rounded-full text-xs font-bold text-gray-500">0 Items</span>
+    </div>
 
-<div id="wishlist-container"
-     class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div id="wishlist-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
 
-    <!-- Wishlist items injected by JS -->
+    <div id="empty-msg" class="hidden text-center py-20 glass rounded-2xl">
+        <p class="text-xl text-gray-500 mb-6">Your wishlist is currently empty.</p>
+        <a href="index.html" class="bg-red-600 hover:bg-red-700 text-white px-8 py-3 rounded-lg font-bold transition">Explore Store</a>
+    </div>
+</main>
 
-</div>
+<script>
+    async function loadWishlist() {
+        const response = await fetch('api/wishlist');
+        if (response.ok) {
+            const games = await response.json();
+            renderWishlist(games);
+        } else { window.location.href = 'login.html'; }
+    }
 
-<p id="empty-msg" class="hidden text-gray-400 mt-8">
-    Your wishlist is empty.
-</p>
+    function renderWishlist(games) {
+        const container = document.getElementById("wishlist-container");
+        const emptyMsg = document.getElementById("empty-msg");
+        const countDisplay = document.getElementById("wishlist-count");
 
+        countDisplay.innerText = `${games.length} Items`;
+
+        if (games.length === 0) {
+            container.innerHTML = "";
+            emptyMsg.classList.remove("hidden");
+            return;
+        }
+
+        emptyMsg.classList.add("hidden");
+        container.innerHTML = games.map(game => `
+            <div class="wishlist-card rounded-2xl overflow-hidden flex flex-col group">
+                <div class="relative h-44 overflow-hidden" onclick="window.location.href='game-details.html?id=${game.id}'">
+                    <img src="${game.imageURL}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                </div>
+                <div class="p-6 flex-grow flex flex-col">
+                    <h2 class="text-xl font-bold text-white mb-2">${game.title}</h2>
+                    <p class="text-xs text-gray-500 uppercase font-bold mb-4">${game.genre}</p>
+
+                    <div class="flex items-center justify-between mt-auto">
+                        <span class="text-red-400 font-black text-2xl">$${game.price.toFixed(2)}</span>
+                        <button onclick="removeFromWishlist('${game.id}')" class="text-gray-500 hover:text-red-500 transition-colors p-2 flex items-center gap-1 text-xs font-bold">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                            REMOVE
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    async function removeFromWishlist(id) {
+        const res = await fetch(`api/wishlist?gameId=${id}`, { method: 'POST' });
+        if (res.ok) loadWishlist();
+    }
+
+    window.onload = loadWishlist;
+</script>
 </body>
 </html>

@@ -1,16 +1,24 @@
 [
   {
-    "id": 1,
+    "userId": 1,
     "username": "admin",
     "email": "admin@gameverse.com",
-    "passwordHash": "admin123",
-    "role": "ADMIN"
+    "passwordHash": "240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9",
+    "role": "ADMIN",
+    "ownedGameIds": [
+      "3bf7467d-d367-4f5a-b806-802ed55dd4d4",
+      "6d028175-44e4-4642-83d4-8e4d354333b9"
+    ],
+    "cart": {
+      "items": [],
+      "totalPrice": 0.0
+    }
   },
   {
     "userId": 2,
     "username": "izyancust",
     "email": "customer@gameverse.com",
-    "passwordHash": "4f21b18a4c743a5da01bb3a4955dea0a0294a0b4f7977b454c7259e37b2e6c19",
+    "passwordHash": "6c383a46384876c569fa4738c69ec3049e98cda5bb9fb9fb04f22a64df97b270",
     "role": "CUSTOMER",
     "ownedGameIds": [
       "101",

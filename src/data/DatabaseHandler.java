@@ -5,6 +5,7 @@ import src.model.User;
 import src.model.CartItem;
 import src.model.User.Role;
 import src.model.Wishlist;
+import src.model.PurchaseRecord;
 import src.service.GameDataAPIService;
 
 import com.google.gson.Gson;
@@ -30,11 +31,16 @@ public class DatabaseHandler {
     private static final String WISHLIST_DB_PATH = "wishlists.json";
     private static List<Wishlist> wishlists = new ArrayList<>();
 
+    // ===== PURCHASE HISTORY DATABASE =====
+    private static final String HISTORY_DB_PATH = "purchase_history.json";
+    private static List<PurchaseRecord> history = new ArrayList<>();
+
     // ---- USER INIT ----
     static {
         loadUsers();
         loadGamesStatic();
         loadWishlists();
+        loadHistory();
     }
 
     public DatabaseHandler() {
@@ -161,11 +167,20 @@ public class DatabaseHandler {
         Optional<User> userOpt = users.stream().filter(u -> u.getUserId() == userId).findFirst();
         if (userOpt.isPresent()) {
             User user = userOpt.get();
-            // Move IDs from Cart to owned list
+            List<String> boughtTitles = new ArrayList<>();
+            double total = user.getCart().getTotalPrice();
+
             for (CartItem item : user.getCart().getItems()) {
                 user.addOwnedGame(item.getGame().getId());
+                boughtTitles.add(item.getGame().getTitle());
             }
-            // Clear the cart
+
+            // Create history entry
+            if (!boughtTitles.isEmpty()) {
+                history.add(new PurchaseRecord(userId, boughtTitles, total));
+                saveHistory();
+            }
+
             user.getCart().clear();
             saveUsers();
             return true;
@@ -239,4 +254,29 @@ public class DatabaseHandler {
                 .filter(g -> wl.getProducts().contains(g.getId()))
                 .collect(Collectors.toList());
     }
+
+    // ================= PURCHASE HISTORY METHODS =================
+    private static void loadHistory() {
+        File file = new File(HISTORY_DB_PATH);
+        if (!file.exists() || file.length() == 0) return;
+        try (Reader reader = new FileReader(file)) {
+            Type type = new TypeToken<ArrayList<PurchaseRecord>>() {}.getType();
+            List<PurchaseRecord> data = new Gson().fromJson(reader, type);
+            if (data != null) history = data;
+        } catch (IOException e) { e.printStackTrace(); }
+    }
+
+    public static void saveHistory() {
+        try (Writer writer = new FileWriter(HISTORY_DB_PATH)) {
+            new GsonBuilder().setPrettyPrinting().create().toJson(history, writer);
+        } catch (IOException ignored) {}
+    }
+
+    public static List<PurchaseRecord> getHistoryForUser(int userId) {
+        return history.stream()
+                .filter(r -> r.getUserId() == userId)
+                .collect(Collectors.toList());
+    }
+
+
 }

@@ -1,0 +1,20 @@
+[
+  {
+    "orderId": "ORD-0B1BCC45",
+    "userId": 1,
+    "gameTitles": [
+      "Stardew Valley"
+    ],
+    "totalPrice": 19.99,
+    "purchaseDate": "2026-01-05 21:34"
+  },
+  {
+    "orderId": "ORD-DCA48BDD",
+    "userId": 3,
+    "gameTitles": [
+      "The Legend of Zelda: Breath of the Wild and The Legend of Zelda: Breath of the Wild Expansion Pass Bundle"
+    ],
+    "totalPrice": 80.0,
+    "purchaseDate": "2026-01-05 21:43"
+  }
+]

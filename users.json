@@ -7,7 +7,8 @@
     "role": "ADMIN",
     "ownedGameIds": [
       "3bf7467d-d367-4f5a-b806-802ed55dd4d4",
-      "6d028175-44e4-4642-83d4-8e4d354333b9"
+      "6d028175-44e4-4642-83d4-8e4d354333b9",
+      "44e334a4-d881-4e6f-8e50-c49ae047b97f"
     ],
     "cart": {
       "items": [],
@@ -49,6 +50,20 @@
         }
       ],
       "totalPrice": 69.99
+    }
+  },
+  {
+    "userId": 3,
+    "username": "test123",
+    "email": "cust2@gameverse.com",
+    "passwordHash": "4f21b18a4c743a5da01bb3a4955dea0a0294a0b4f7977b454c7259e37b2e6c19",
+    "role": "CUSTOMER",
+    "ownedGameIds": [
+      "b4298270-17a8-40db-baf1-a96417664b8e"
+    ],
+    "cart": {
+      "items": [],
+      "totalPrice": 0.0
     }
   }
 ]

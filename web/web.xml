@@ -6,10 +6,7 @@
 
     <display-name>GameVerse Digital Store</display-name>
 
-    <!--
-        Map the GameServlet class to the URL pattern /api/games
-        This is what JavaScript calls via: fetch('/api/games?q=...')
-    -->
+    <!-- Basic Store APIs -->
     <servlet>
         <servlet-name>GameServlet</servlet-name>
         <servlet-class>src.controller.GameServlet</servlet-class>
@@ -18,23 +15,17 @@
         <servlet-name>GameServlet</servlet-name>
         <url-pattern>/api/games</url-pattern>
     </servlet-mapping>
+
     <servlet>
-        <servlet-name>AdminServlet</servlet-name>
-        <servlet-class>src.controller.AdminServlet</servlet-class>
+        <servlet-name>CartServlet</servlet-name>
+        <servlet-class>src.controller.CartServlet</servlet-class>
     </servlet>
     <servlet-mapping>
-        <servlet-name>AdminServlet</servlet-name>
-        <url-pattern>/api/admin</url-pattern>
-    </servlet-mapping>
-    <servlet>
-        <servlet-name>SignupServlet</servlet-name>
-        <servlet-class>src.controller.SignupServlet</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>SignupServlet</servlet-name>
-        <url-pattern>/signup</url-pattern>
+        <servlet-name>CartServlet</servlet-name>
+        <url-pattern>/api/cart</url-pattern>
     </servlet-mapping>
 
+    <!-- User & Auth -->
     <servlet>
         <servlet-name>LoginServlet</servlet-name>
         <servlet-class>src.controller.LoginServlet</servlet-class>
@@ -45,12 +36,12 @@
     </servlet-mapping>
 
     <servlet>
-        <servlet-name>UserProfileServlet</servlet-name>
-        <servlet-class>src.controller.UserProfileServlet</servlet-class>
+        <servlet-name>SignupServlet</servlet-name>
+        <servlet-class>src.controller.SignupServlet</servlet-class>
     </servlet>
     <servlet-mapping>
-        <servlet-name>UserProfileServlet</servlet-name>
-        <url-pattern>/api/profile</url-pattern>
+        <servlet-name>SignupServlet</servlet-name>
+        <url-pattern>/signup</url-pattern>
     </servlet-mapping>
 
     <servlet>
@@ -63,31 +54,63 @@
     </servlet-mapping>
 
     <servlet>
-        <servlet-name>CartServlet</servlet-name>
-        <servlet-class>src.controller.CartServlet</servlet-class>
+        <servlet-name>UserProfileServlet</servlet-name>
+        <servlet-class>src.controller.UserProfileServlet</servlet-class>
     </servlet>
     <servlet-mapping>
-        <servlet-name>CartServlet</servlet-name>
-        <url-pattern>/api/cart</url-pattern>
+        <servlet-name>UserProfileServlet</servlet-name>
+        <url-pattern>/api/profile</url-pattern>
     </servlet-mapping>
-    <!--
-        TEAM TASK: Register other Servlets here
-        Example: AuthServlet and CheckoutServlet
-    -->
-    <!--
-    <servlet>
-        <servlet-name>AuthServlet</servlet-name>
-        <servlet-class>controller.AuthServlet</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>AuthServlet</servlet-name>
-        <url-pattern>/api/auth</url-pattern>
-    </servlet-mapping>
-    -->
 
-    <!-- Define the default welcome file -->
+    <!-- NEW: Library & Purchase Flow -->
+    <servlet>
+        <servlet-name>LibraryServlet</servlet-name>
+        <servlet-class>src.controller.LibraryServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>LibraryServlet</servlet-name>
+        <url-pattern>/api/library</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>CheckoutServlet</servlet-name>
+        <servlet-class>src.controller.CheckoutServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>CheckoutServlet</servlet-name>
+        <url-pattern>/api/checkout</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>PurchaseHistoryServlet</servlet-name>
+        <servlet-class>src.controller.PurchaseHistoryServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>PurchaseHistoryServlet</servlet-name>
+        <url-pattern>/api/history</url-pattern>
+    </servlet-mapping>
+
+    <!-- NEW: Wishlist -->
+    <servlet>
+        <servlet-name>WishlistServlet</servlet-name>
+        <servlet-class>src.controller.WishlistServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>WishlistServlet</servlet-name>
+        <url-pattern>/api/wishlist</url-pattern>
+    </servlet-mapping>
+
+    <!-- Admin -->
+    <servlet>
+        <servlet-name>AdminServlet</servlet-name>
+        <servlet-class>src.controller.AdminServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>AdminServlet</servlet-name>
+        <url-pattern>/api/admin</url-pattern>
+    </servlet-mapping>
+
     <welcome-file-list>
         <welcome-file>index.html</welcome-file>
     </welcome-file-list>
-
 </web-app>

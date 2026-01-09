@@ -19,30 +19,56 @@
         @keyframes slideIn { from { transform: translateX(120%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
         .toast-fade-out { animation: slideOut 0.4s ease-in forwards; }
         @keyframes slideOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(120%); opacity: 0; } }
+
+        /* Custom Scrollbar for Sidebar */
+        #admin-sidebar nav::-webkit-scrollbar { width: 4px; }
+        #admin-sidebar nav::-webkit-scrollbar-thumb { background: #30363d; border-radius: 10px; }
     </style>
 </head>
 <body class="min-h-screen">
 
-<!-- Notifications -->
+<!-- Notifications Container -->
 <div id="notification-container" class="fixed bottom-5 right-5 space-y-3 z-[100] pointer-events-none"></div>
 
-<!-- Separated Sidebar Menu -->
+<!-- Platform Selection Modal -->
+<div id="platform-modal" class="fixed inset-0 z-[110] hidden flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+    <div class="glass border border-gray-700 rounded-3xl w-full max-w-md p-8 shadow-2xl">
+        <h2 class="text-2xl font-black text-white mb-2 italic">SELECT PLATFORM</h2>
+        <p class="text-gray-400 text-sm mb-6" id="modal-game-name">Choose your version</p>
+
+        <div id="platform-options" class="grid grid-cols-2 gap-4 mb-8">
+            <!-- Dynamically generated -->
+        </div>
+
+        <div class="flex gap-3">
+            <button onclick="closePlatformModal()" class="flex-1 bg-gray-800 hover:bg-gray-700 text-white font-bold py-3 rounded-xl transition">Cancel</button>
+            <button id="confirm-platform-btn" class="flex-1 bg-red-600 hover:bg-red-500 text-white font-bold py-3 rounded-xl transition shadow-lg shadow-red-900/40">Add to Cart</button>
+        </div>
+    </div>
+</div>
+
+<!-- Tiered Sidebar Menu -->
 <div id="admin-sidebar" class="fixed inset-y-0 left-0 w-64 z-50 sidebar-hidden shadow-2xl p-6 flex flex-col">
     <div class="flex justify-between items-center mb-8">
-        <h2 class="text-xl font-bold text-red-500 italic">GameVerse</h2>
+        <h2 class="text-3xl font-black text-red-500 ">GameVerse</h2>
         <button onclick="toggleMenu()" class="text-gray-400 hover:text-white text-2xl">&times;</button>
     </div>
 
-    <nav id="sidebar-nav" class="space-y-6 flex-grow overflow-y-auto">
-        <!-- JS dynamic content based on role -->
+    <nav id="sidebar-nav" class="space-y-6 flex-grow overflow-y-auto pr-2">
+        <!-- JS dynamic content based on login/role -->
     </nav>
+
+    <div class="border-t border-gray-800 pt-6">
+        <p class="text-[10px] text-gray-600 uppercase tracking-widest text-center">Version 3.0 Stable</p>
+    </div>
 </div>
 
+<!-- Header -->
 <header class="bg-gray-900/80 backdrop-blur-md shadow-2xl sticky top-0 z-40 border-b border-gray-800">
     <nav class="container mx-auto px-4 py-4 flex justify-between items-center">
         <div class="flex items-center space-x-4">
             <button onclick="toggleMenu()" class="p-2 rounded-lg bg-gray-800 hover:bg-gray-700 transition">
-                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
             </button>
             <h1 class="text-3xl font-black text-red-500 cursor-pointer" onclick="showStore()">GameVerse</h1>
         </div>
@@ -52,17 +78,22 @@
                 <option value="">All Platforms</option>
                 <option value="PC">PC</option><option value="PS5">PS5</option><option value="XBOX">Xbox</option><option value="SWITCH">Switch</option>
             </select>
-            <input type="text" id="search-input" placeholder="Search games..." class="px-4 py-2 rounded-lg bg-gray-800 text-white w-40 sm:w-64 border border-gray-700 focus:ring-2 focus:ring-red-500" onkeyup="fetchGames()">
+
+            <input type="text" id="search-input" placeholder="Search products..."
+                   class="px-4 py-2 rounded-lg bg-gray-800 text-white w-40 sm:w-64 border border-gray-700 focus:ring-2 focus:ring-red-500 outline-none"
+                   onkeyup="fetchGames()">
 
             <div class="flex items-center space-x-2">
-                <a href="wishlist.html" class="p-2 bg-gray-800 rounded-lg hover:text-red-500 transition border border-gray-700">
+                <a href="wishlist.html" class="p-2 bg-gray-800 rounded-lg hover:text-red-500 transition border border-gray-700" title="My Wishlist">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
                 </a>
-                <a href="cart.html" class="relative p-2 bg-gray-800 rounded-lg hover:text-red-500 transition border border-gray-700">
+
+                <a href="cart.html" class="relative p-2 bg-gray-800 rounded-lg hover:text-red-500 transition border border-gray-700" title="Cart">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-                    <span id="cart-count" class="absolute -top-1 -right-1 bg-red-600 text-white text-[10px] font-bold px-1.5 rounded-full border border-gray-900">0</span>
+                    <span id="cart-count" class="absolute -top-1 -right-1 bg-red-600 text-white text-[10px] font-bold px-1.5 rounded-full">0</span>
                 </a>
             </div>
+
             <div id="auth-section"></div>
         </div>
     </nav>
@@ -72,10 +103,15 @@
     <div class="flex justify-between items-end mb-10 border-b-2 border-red-600/30 pb-4">
         <div>
             <h2 id="page-title" class="text-5xl font-black text-white italic uppercase tracking-tighter">Catalog</h2>
-            <p id="item-count" class="text-gray-500 text-sm mt-1"></p>
+            <p id="item-count" class="text-gray-500 text-sm mt-1">Initializing catalog...</p>
         </div>
     </div>
-    <div id="game-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8"></div>
+
+    <div id="game-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+        <!-- Initial Skeleton state -->
+        <div class="animate-pulse bg-gray-800/50 h-80 rounded-2xl"></div>
+        <div class="animate-pulse bg-gray-800/50 h-80 rounded-2xl"></div>
+    </div>
 </main>
 
 <script>
@@ -87,9 +123,12 @@
 
     let currentUser = null;
     let viewMode = 'store';
+    let downloadingIds = {}; // Local progress tracking
+    let selectedPlatform = null;
 
     function toggleMenu() { document.getElementById('admin-sidebar').classList.toggle('sidebar-hidden'); }
 
+    // --- Toast System ---
     function showNotification(message, isError = false) {
         const container = document.getElementById('notification-container');
         const notification = document.createElement('div');
@@ -99,66 +138,75 @@
         setTimeout(() => { notification.classList.add('toast-fade-out'); notification.addEventListener('animationend', () => notification.remove()); }, 3500);
     }
 
-    function showStore() { viewMode = 'store'; document.getElementById('page-title').innerText = 'Catalog'; fetchGames(); }
-    function showLibrary() { viewMode = 'library'; document.getElementById('page-title').innerText = 'My Library'; fetchGames(); toggleMenu(); }
+    // --- Navigation ---
+    function showStore() {
+        viewMode = 'store';
+        document.getElementById('page-title').innerText = 'Catalog';
+        document.getElementById('platform-filter').classList.remove('hidden');
+        fetchGames();
+    }
 
+    function showLibrary() {
+        viewMode = 'library';
+        document.getElementById('page-title').innerText = 'My Library';
+        document.getElementById('platform-filter').classList.add('hidden');
+        fetchGames();
+        const sidebar = document.getElementById('admin-sidebar');
+        if (!sidebar.classList.contains('sidebar-hidden')) toggleMenu();
+    }
+
+    // --- Auth & Identity ---
     async function checkLoginStatus() {
         const authSection = document.getElementById('auth-section');
         const sidebarNav = document.getElementById('sidebar-nav');
         try {
-            const response = await fetch(PROFILE_API);
-            if (response.ok) {
-                currentUser = await response.json();
+            const res = await fetch(PROFILE_API);
+            if (res.ok) {
+                currentUser = await res.json();
                 authSection.innerHTML = `
                     <button onclick="window.location.href='profile.html'" class="flex items-center space-x-2 group">
-                        <span class="text-gray-400 text-sm group-hover:text-white transition">Hi, ${currentUser.username}</span>
+                        <span class="text-gray-400 text-sm hidden sm:inline group-hover:text-white transition">Hi, ${currentUser.username}</span>
                         <div class="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center font-bold text-white text-xs border border-red-400">
                             ${currentUser.username[0].toUpperCase()}
                         </div>
                     </button>`;
 
                 let navHtml = `
-                    <button onclick="showStore()" class="w-full text-left p-3 rounded-lg hover:bg-gray-800 transition flex items-center space-x-3">
-                        <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
-                        <span>Storefront</span>
-                    </button>
-                    <button onclick="showLibrary()" class="w-full text-left p-3 rounded-lg hover:bg-gray-800 transition flex items-center space-x-3">
-                        <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 7v10c0 2 1 3 3 3h10c2 0 3-1 3-3V7c0-2-1-3-3-3H7c-2 0-3 1-3 3zM12 4v16m-4-8h8"></path></svg>
-                        <span>My Library</span>
-                    </button>
-                    <a href="wishlist.html" class="block p-3 rounded-lg hover:bg-gray-800 transition flex items-center space-x-3">
-                        <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
-                        <span>Wishlist</span>
-                    </a>
-                    <a href="profile.html" class="block p-3 rounded-lg hover:bg-gray-800 transition flex items-center space-x-3">
-                        <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
-                        <span>My Account</span>
-                    </a>
-                `;
+                    <div class="space-y-2">
+                        <p class="text-[10px] text-gray-500 font-bold uppercase tracking-widest px-3">Store Menu</p>
+                        <button onclick="showStore()" class="w-full text-left p-3 rounded-lg hover:bg-gray-800 transition">Storefront</button>
+                        <button onclick="showLibrary()" class="w-full text-left p-3 rounded-lg hover:bg-gray-800 transition">My Library</button>
+                        <a href="wishlist.html" class="block p-3 rounded-lg hover:bg-gray-800 transition">My Wishlist</a>
+                    </div>`;
 
                 if (currentUser.role === 'ADMIN') {
                     navHtml += `
-                        <div class="border-t border-gray-800 pt-4 mt-4">
-                            <p class="text-[10px] text-gray-600 font-bold uppercase mb-2 px-3">Management</p>
-                            <a href="admin.html" class="block p-3 rounded-lg hover:bg-red-900/20 text-red-400 transition flex items-center space-x-3">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                <span>Add New Product</span>
-                            </a>
+                        <div class="space-y-2 border-t border-gray-800 pt-4 mt-4">
+                            <p class="text-[10px] text-red-500 font-bold uppercase tracking-widest px-3 text-red-500">Admin Panel</p>
+                            <a href="admin.html" class="block p-3 rounded-lg hover:bg-red-900/20 text-red-400 transition">Add New Product</a>
                         </div>`;
                 }
-                navHtml += `<button onclick="logout()" class="w-full text-left p-3 rounded-lg hover:bg-red-900/20 text-red-600 transition mt-10 font-bold">Sign Out</button>`;
+
+                navHtml += `
+                    <div class="space-y-2 border-t border-gray-800 pt-4 mt-4">
+                         <a href="profile.html" class="block p-3 rounded-lg hover:bg-gray-800 transition text-gray-400">Account Settings</a>
+                         <button onclick="logout()" class="w-full text-left p-3 rounded-lg text-red-500 hover:bg-red-900/10 transition mt-4 font-bold">Sign Out</button>
+                    </div>`;
+
                 sidebarNav.innerHTML = navHtml;
             } else {
                 authSection.innerHTML = `<a href="login.html" class="bg-red-600 hover:bg-red-700 text-white px-5 py-2 rounded-lg font-black text-sm transition shadow-lg shadow-red-900/30">LOGIN</a>`;
-                sidebarNav.innerHTML = `<div class="py-10 text-center"><a href="login.html" class="block w-full bg-red-600 text-white font-bold py-3 rounded-lg">Sign In to Access Collection</a></div>`;
+                sidebarNav.innerHTML = `<div class="py-10 text-center"><a href="login.html" class="block w-full bg-red-600 text-white font-bold py-3 rounded-lg">Sign In to Access GameVerse</a></div>`;
             }
         } catch (e) { console.error(e); }
     }
 
+    // --- Core Data Logic ---
     async function fetchGames() {
         const q = document.getElementById('search-input').value;
         const p = document.getElementById('platform-filter').value;
         try {
+            // Concurrent fetch of Catalog, Library, and Wishlist for unified card states
             const [gamesRes, libRes, wishRes] = await Promise.all([
                 fetch(`${GAME_API}?q=${encodeURIComponent(q)}&platform=${encodeURIComponent(p)}`),
                 fetch(LIBRARY_API).catch(() => null),
@@ -169,56 +217,180 @@
             const library = (libRes && libRes.ok) ? await libRes.json() : [];
             const wishlist = (wishRes && wishRes.ok) ? await wishRes.json() : [];
 
-            const ownedIds = library.map(g => g.id);
+            const ownedIds = library.map(item => item.game.id);
             const wishIds = wishlist.map(g => g.id);
 
             if (viewMode === 'library') {
-                renderGames(games.filter(g => ownedIds.includes(g.id)), ownedIds, wishIds, true);
+                renderGames(library, ownedIds, wishIds, true);
             } else {
                 renderGames(games, ownedIds, wishIds, false);
             }
-        } catch (e) { console.error(e); }
+        } catch (e) {
+            document.getElementById('game-list').innerHTML = '<p class="col-span-full text-center py-20 text-red-500">Service unavailable. Reconnecting...</p>';
+        }
     }
 
-    function renderGames(games, ownedIds, wishIds, isLibraryView) {
+    function isInstalled(gameId) {
+        if (!currentUser) return false;
+        return localStorage.getItem(`installed_${currentUser.userId}_${gameId}`) === 'true';
+    }
+
+    function renderGames(data, ownedIds, wishIds, isLibraryView) {
         const list = document.getElementById('game-list');
         list.innerHTML = '';
-        document.getElementById('item-count').innerText = `${games.length} products found`;
+        document.getElementById('item-count').innerText = `${data.length} results in ${viewMode}`;
 
-        games.forEach(game => {
+        if (data.length === 0) {
+            list.innerHTML = '<div class="col-span-full text-center py-20 text-gray-600">Nothing found here yet.</div>';
+            return;
+        }
+
+        data.forEach(itemData => {
+            // In Library view, itemData is { game: {}, purchasedPlatform: "" }
+            const game = isLibraryView ? itemData.game : itemData;
+            const purchasedOn = isLibraryView ? itemData.purchasedPlatform : null;
+
             const isOwned = ownedIds.includes(game.id);
+            const installed = isInstalled(game.id);
+            const isDownloading = downloadingIds[game.id] !== undefined;
             const isWishlisted = wishIds.includes(game.id);
 
-            const actionButton = isLibraryView
-                ? `<button onclick="event.stopPropagation(); playId('${game.id}', '${game.title}')" class="w-full bg-green-600 hover:bg-green-500 text-white py-2 rounded-lg font-bold">PLAY NOW</button>`
-                : isOwned
-                    ? `<button onclick="event.stopPropagation(); showLibrary()" class="w-full bg-gray-800 hover:bg-gray-700 text-white py-2 rounded-lg font-bold border border-gray-600">IN LIBRARY</button>`
-                    : `<button onclick="event.stopPropagation(); addToCart('${game.id}', '${game.title}')" class="w-full bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg font-bold">ADD TO CART</button>`;
+            let actionButton = '';
+            let downloadOverlay = '';
+
+            if (isLibraryView) {
+                // LIBRARY MODE ACTIONS
+                if (purchasedOn === 'PC') {
+                    if (isDownloading) {
+                        const progress = downloadingIds[game.id];
+                        actionButton = `<button disabled class="w-full bg-gray-800 text-gray-500 py-2 rounded-lg font-bold cursor-wait uppercase">Installing ${progress}%</button>`;
+                        downloadOverlay = `<div class="absolute bottom-0 left-0 right-0 h-1 bg-gray-900"><div class="progress-bar h-full bg-blue-500" style="width: ${progress}%"></div></div>`;
+                    } else if (installed) {
+                        actionButton = `
+                            <div class="flex gap-2">
+                                <button onclick="event.stopPropagation(); playId('${game.id}', '${game.title}')" class="flex-grow bg-green-600 hover:bg-green-500 text-white py-2 rounded-lg font-bold transition">PLAY</button>
+                                <button onclick="event.stopPropagation(); uninstallGame('${game.id}', '${game.title}')" class="bg-gray-800 hover:bg-red-900 text-gray-400 p-2 rounded-lg transition" title="Uninstall License">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                </button>
+                            </div>`;
+                    } else {
+                        actionButton = `<button onclick="event.stopPropagation(); startDownload('${game.id}', '${game.title}')" class="w-full bg-blue-600 hover:bg-blue-500 text-white py-2 rounded-lg font-bold transition">INSTALL</button>`;
+                    }
+                } else {
+                    // CONSOLE REDIRECTS
+                    actionButton = `<button onclick="event.stopPropagation(); promptExternalStore('${purchasedOn}')" class="w-full bg-gray-800 hover:bg-gray-700 text-white py-2 rounded-lg font-bold border border-gray-600 transition uppercase text-xs">View on ${purchasedOn} Store</button>`;
+                }
+            } else {
+                // STORE MODE ACTIONS
+                if (isOwned) {
+                    actionButton = `<button onclick="event.stopPropagation(); showLibrary()" class="w-full bg-gray-800 hover:bg-gray-700 text-white py-2 rounded-lg font-bold border border-gray-600 transition">VIEW IN LIBRARY</button>`;
+                } else {
+                    actionButton = `<button onclick="event.stopPropagation(); openPlatformModal('${game.id}', '${game.title}', ${JSON.stringify(game.platforms)})" class="w-full bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg font-bold transition">ADD TO CART</button>`;
+                }
+            }
 
             list.innerHTML += `
-                <div class="game-card rounded-2xl overflow-hidden p-4 flex flex-col justify-between relative" onclick="window.location.href='game-details.html?id=${game.id}'">
+                <div class="game-card rounded-2xl overflow-hidden p-4 flex flex-col justify-between relative shadow-lg" onclick="window.location.href='game-details.html?id=${game.id}'">
                     <div>
-                        <div class="relative overflow-hidden rounded-xl mb-4">
-                            <img src="${game.imageURL}" class="w-full h-40 object-cover" onerror="this.src='https://placehold.co/400x250?text=License'">
+                        <div class="relative overflow-hidden rounded-xl mb-4 bg-gray-900">
+                            <img src="${game.imageURL}" class="w-full h-44 object-cover" onerror="this.src='https://placehold.co/400x250?text=License'">
 
                             ${!isLibraryView ? `
                                 <button onclick="event.stopPropagation(); toggleWishlist('${game.id}', '${game.title}')"
                                         class="absolute top-2 left-2 p-1.5 glass rounded-full transition ${isWishlisted ? 'text-red-500 fill-current' : 'text-gray-400 hover:text-red-400'}">
                                     <svg class="w-4 h-4" fill="${isWishlisted ? 'currentColor' : 'none'}" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
                                 </button>
-                            ` : ''}
+                            ` : `
+                                <span class="absolute top-2 left-2 bg-red-600/80 backdrop-blur-md text-white text-[10px] px-2 py-0.5 rounded font-black uppercase shadow-lg">${purchasedOn}</span>
+                            `}
 
-                            ${isOwned ? '<span class="absolute top-2 right-2 owned-badge text-white text-[9px] px-2 py-1 rounded font-black shadow-lg">OWNED</span>' : ''}
+                            ${isOwned ? '<span class="absolute top-2 right-2 owned-badge text-white text-[9px] px-2 py-1 rounded font-black shadow-lg">LICENSE OWNED</span>' : ''}
+                            ${downloadOverlay}
                         </div>
-                        <h3 class="font-bold text-white text-lg mb-1 truncate uppercase">${game.title}</h3>
-                        <p class="text-[10px] text-gray-500 uppercase font-black tracking-widest mb-3">${game.genre}</p>
+                        <h3 class="font-bold text-white text-lg mb-1 truncate tracking-tight uppercase">${game.title}</h3>
+                        <p class="text-[10px] text-gray-500 uppercase font-black tracking-widest mb-3">${game.genre || 'Interactive'}</p>
                     </div>
                     <div>
-                        <p class="text-red-500 font-black text-2xl mb-4">${isOwned ? '<span class="text-xs text-gray-600 italic">PURCHASED</span>' : '$' + game.price.toFixed(2)}</p>
+                        <div class="flex items-center justify-between mb-4">
+                            <p class="text-red-500 font-black text-2xl">${isOwned ? '<span class="text-xs text-gray-600 italic">PURCHASED</span>' : '$' + (game.price || 0).toFixed(2)}</p>
+                            <span class="text-[10px] text-gray-600 font-bold">${(game.downloadSizeGB || 0).toFixed(1)} GB</span>
+                        </div>
                         ${actionButton}
                     </div>
                 </div>`;
         });
+    }
+
+    // --- Platform Modal Logic ---
+    function openPlatformModal(id, title, platforms) {
+        if (!currentUser) { showNotification("Please login to purchase products.", true); return; }
+
+        document.getElementById('modal-game-name').innerText = `Select your platform for ${title}`;
+        const container = document.getElementById('platform-options');
+
+        // Use provided platforms list or default to PC
+        const pList = (platforms && platforms.length > 0) ? platforms : ['PC'];
+
+        container.innerHTML = pList.map(p => `
+            <button onclick="selectPlatform('${p}')" class="platform-btn bg-[#0d1117] border-2 border-gray-800 p-4 rounded-xl text-center hover:border-red-500 transition group" id="btn-${p}">
+                <span class="block font-black text-white group-hover:text-red-500">${p}</span>
+                <span class="text-[9px] text-gray-500 uppercase">Verified Digital</span>
+            </button>
+        `).join('');
+
+        document.getElementById('platform-modal').classList.remove('hidden');
+        document.getElementById('confirm-platform-btn').onclick = () => {
+            if (!selectedPlatform) { alert("Choose a platform first!"); return; }
+            addToCart(id, title, selectedPlatform);
+            closePlatformModal();
+        };
+    }
+
+    function selectPlatform(p) {
+        selectedPlatform = p;
+        document.querySelectorAll('.platform-btn').forEach(b => b.classList.replace('border-red-500', 'border-gray-800'));
+        document.getElementById(`btn-${p}`).classList.replace('border-gray-800', 'border-red-500');
+    }
+
+    function closePlatformModal() {
+        document.getElementById('platform-modal').classList.add('hidden');
+        selectedPlatform = null;
+    }
+
+    function promptExternalStore(platform) {
+        const stores = {
+            'PS5': 'https://store.playstation.com',
+            'XBOX': 'https://www.xbox.com/en-US/microsoft-store',
+            'SWITCH': 'https://www.nintendo.com/store/games/'
+        };
+        const url = stores[platform] || 'https://google.com';
+        if (confirm(`Redirecting to official ${platform} Store to install your digital copy.\n\nContinue?`)) {
+            window.open(url, '_blank');
+        }
+    }
+
+    // --- Interaction Simulation ---
+    function startDownload(id, title) {
+        if (downloadingIds[id] !== undefined) return;
+        downloadingIds[id] = 0;
+        const interval = setInterval(() => {
+            downloadingIds[id] += Math.floor(Math.random() * 20) + 10;
+            if (downloadingIds[id] >= 100) {
+                clearInterval(interval);
+                delete downloadingIds[id];
+                localStorage.setItem(`installed_${currentUser.userId}_${id}`, 'true');
+                fetchGames();
+                showNotification(`${title} is now ready to play.`);
+            } else { fetchGames(); }
+        }, 500);
+    }
+
+    function uninstallGame(id, title) {
+        if (confirm(`Uninstalling ${title} will remove local files for User ${currentUser.username}. Continue?`)) {
+            localStorage.removeItem(`installed_${currentUser.userId}_${id}`);
+            fetchGames();
+            showNotification(`${title} has been uninstalled.`);
+        }
     }
 
     async function toggleWishlist(gameId, title) {
@@ -227,25 +399,35 @@
             const data = await res.json();
             showNotification(data.message);
             fetchGames();
-        } else {
-            showNotification("Please login to save wishlist.", true);
-        }
+        } else { showNotification("Login required to save favorites.", true); }
     }
 
-    async function addToCart(gameId, title) {
-        const res = await fetch(`${CART_API}?gameId=${gameId}`, { method: 'POST' });
-        if (res.ok) { loadCartCount(); showNotification(`${title} added to cart!`); }
+    async function addToCart(gameId, title, platform) {
+        const res = await fetch(`${CART_API}?gameId=${gameId}&platform=${platform}`, { method: 'POST' });
+        if (res.ok) {
+            loadCartCount();
+            showNotification(`${title} (${platform}) added to your cart!`);
+        } else { showNotification("Please sign in to buy.", true); }
     }
 
     async function loadCartCount() {
-        const res = await fetch(CART_API);
-        if (res.ok) { const cart = await res.json(); document.getElementById('cart-count').innerText = cart.items ? cart.items.length : 0; }
+        try {
+            const res = await fetch(CART_API);
+            if (res.ok) {
+                const cart = await res.json();
+                document.getElementById('cart-count').innerText = cart.items ? cart.items.length : 0;
+            }
+        } catch (e) {}
     }
 
-    function logout() { window.location.href = '/logout'; }
-    function playId(id, title) { showNotification(`Launching ${title}...`); }
+    function logout() { window.location.href = 'logout'; }
+    function playId(id, title) { showNotification(`Launching ${title} instance...`); }
 
-    window.onload = () => { checkLoginStatus(); fetchGames(); loadCartCount(); };
+    window.onload = () => {
+        checkLoginStatus();
+        fetchGames();
+        loadCartCount();
+    };
 </script>
 </body>
 </html>

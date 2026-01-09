@@ -15,7 +15,7 @@ public class User {
     private String email;
     private String passwordHash;
     private Role role;
-    private List<String> ownedGameIds;
+    private List<String> library;
     private Cart cart;
 
     public User(int userId, String username, String email,
@@ -25,7 +25,7 @@ public class User {
         this.email = email;
         this.passwordHash = passwordHash;
         this.role = role;
-        this.ownedGameIds = new ArrayList<>();
+        this.library = new ArrayList<>();
         this.cart = new Cart();
     }
 
@@ -36,16 +36,21 @@ public class User {
     public String getPasswordHash() { return passwordHash; }
     public void setPasswordHash(String passwordHash) { this.passwordHash = passwordHash; }
     public Role getRole() { return role; }
-    public List<String> getOwnedGameIds() { return ownedGameIds; }
+    public List<String> getLibrary() {
+        if (library == null) library = new ArrayList<>();
+        return library;
+    }
 
-    public void addOwnedGame(String gameId) {
-        if (ownedGameIds == null) ownedGameIds = new ArrayList<>();
-        if (!ownedGameIds.contains(gameId)) ownedGameIds.add(gameId);
+    public void addToLibrary(String gameId, String platform) {
+        if (library == null) library = new ArrayList<>();
+        String entry = gameId + ":" + platform;
+        if (!library.contains(entry)) {
+            library.add(entry);
+        }
     }
 
     public Cart getCart() {
         if (this.cart == null) this.cart = new Cart();
         return cart;
     }
-    public void setCart(Cart cart) { this.cart = cart; }
 }

@@ -11,27 +11,25 @@
 </head>
 <body class="min-h-screen flex flex-col">
 <nav class="p-6 border-b border-gray-800 flex justify-between items-center glass">
-    <a href="index.html" class="text-2xl font-bold text-red-500 italic">GameVerse</a>
-    <a href="cart.html" class="text-sm text-gray-400 hover:text-white">Back to Cart</a>
+    <a href="index.html" class="text-3xl font-black text-red-500 cursor-pointer">GameVerse</a>
+    <a href="cart.html" class="text-sm text-gray-400 hover:text-white transition">Back to Cart</a>
 </nav>
 
 <main class="flex-grow container mx-auto py-12 px-4 max-w-4xl">
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-
-        <!-- Left Side: Order Summary -->
+        <!-- Order Summary -->
         <div class="glass p-8 rounded-2xl shadow-2xl h-fit">
             <h2 class="text-2xl font-bold mb-6">Order Summary</h2>
             <div id="checkout-list" class="space-y-4 mb-6">
-                <!-- Items loaded via JS -->
-                <p class="animate-pulse text-gray-600 text-sm" id="verify-msg">Verifying items...</p>
+                <p class="animate-pulse text-gray-600 text-sm" id="status-text">Verifying items...</p>
             </div>
             <div class="border-t border-gray-800 pt-4 flex justify-between items-center">
-                <span class="text-gray-400">Total Charged:</span>
+                <span class="text-gray-400 font-bold">Total Charged:</span>
                 <span id="checkout-total" class="text-3xl font-black text-white">$0.00</span>
             </div>
         </div>
 
-        <!-- Right Side: Payment Form -->
+        <!-- Payment Form -->
         <div class="glass p-8 rounded-2xl shadow-2xl">
             <h1 class="text-2xl font-bold mb-6">Payment Details</h1>
 
@@ -71,47 +69,42 @@
 </main>
 
 <script>
-    const CART_API = 'api/cart';
-    const CHECKOUT_API = 'api/checkout';
+    async function loadSummary() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const directId = urlParams.get('id');
+        const directPlatform = urlParams.get('platform');
 
-    async function loadOrderSummary() {
         try {
-            const urlParams = new URLSearchParams(window.location.search);
-            const directId = urlParams.get('id');
-
-            // 1. If coming from "Buy Now", add item to cart first
-            if (directId) {
-                await fetch(`${CART_API}?gameId=${directId}`, { method: 'POST' });
+            // 1. If "Buy Now", auto-add to cart
+            if (directId && directPlatform) {
+                await fetch(`api/cart?gameId=${directId}&platform=${directPlatform}`, { method: 'POST' });
             }
 
-            // 2. Fetch the cart
-            const res = await fetch(CART_API);
+            // 2. Load Cart
+            const res = await fetch('api/cart');
             const cart = await res.json();
-
             const list = document.getElementById('checkout-list');
 
             if (!cart.items || cart.items.length === 0) {
-                alert("Your cart is empty. Redirecting...");
-                window.location.href = 'index.html';
-                return;
+                alert("Cart is empty!"); window.location.href = 'index.html'; return;
             }
 
-            // 3. Render items.
-            // FIXED: Calculation is done in JS because 'getTotalPrice' isn't in the JSON
+            // 3. Render
             list.innerHTML = cart.items.map(item => {
                 const itemTotal = item.game.price * item.quantity;
                 return `
-                    <div class="flex justify-between text-sm">
-                        <span class="text-gray-300 font-medium">${item.game.title} <span class="text-gray-500 text-[10px]">x${item.quantity}</span></span>
+                    <div class="flex justify-between text-sm border-b border-gray-800 pb-2">
+                        <div>
+                            <p class="text-white font-bold">${item.game.title}</p>
+                            <p class="text-[10px] text-red-500 font-black uppercase">${item.selectedPlatform}</p>
+                        </div>
                         <span class="text-white font-bold">$${itemTotal.toFixed(2)}</span>
-                    </div>
-                `;
+                    </div>`;
             }).join('');
 
             document.getElementById('checkout-total').innerText = `$${(cart.totalPrice || 0).toFixed(2)}`;
         } catch (e) {
-            console.error("Summary error:", e);
-            document.getElementById('verify-msg').innerText = "Error loading items. Please try again.";
+            document.getElementById('status-text').innerText = "Error loading summary.";
         }
     }
 
@@ -121,25 +114,19 @@
         document.getElementById('processing').classList.remove('hidden');
 
         setTimeout(async () => {
-            try {
-                const res = await fetch(CHECKOUT_API, { method: 'POST' });
-                const result = await res.json();
-
-                if (res.ok) {
-                    alert('Order Complete! Games have been added to your Library.');
-                    window.location.href = 'index.html';
-                } else {
-                    alert('Error: ' + result.message);
-                    document.getElementById('purchase-form').classList.remove('hidden');
-                    document.getElementById('processing').classList.add('hidden');
-                }
-            } catch (error) {
-                alert('Server connection failed. Please try again.');
+            const res = await fetch('api/checkout', { method: 'POST' });
+            if (res.ok) {
+                alert("Success! Your games are now in your Library.");
+                window.location.href = 'index.html';
+            } else {
+                alert("Checkout failed. Check your connection.");
+                document.getElementById('purchase-form').classList.remove('hidden');
+                document.getElementById('processing').classList.add('hidden');
             }
         }, 2000);
     }
 
-    window.onload = loadOrderSummary;
+    window.onload = loadSummary;
 </script>
 </body>
 </html>

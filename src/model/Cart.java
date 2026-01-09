@@ -13,17 +13,17 @@ public class Cart {
     }
 
     // Add a game to the cart
-    public void addGame(Game game, int quantity) {
+    public void addGame(Game game, int quantity, String platform) {
         boolean found = false;
         for (CartItem item : items) {
-            if (item.getGame().getId().equals(game.getId())) {
+            if (item.getGame().getId().equals(game.getId()) && item.getSelectedPlatform().equals(platform)) {
                 item.setQuantity(item.getQuantity() + quantity);
                 found = true;
                 break;
             }
         }
         if (!found) {
-            items.add(new CartItem(game, quantity));
+            items.add(new CartItem(game, quantity, platform));
         }
         updateTotal();
     }

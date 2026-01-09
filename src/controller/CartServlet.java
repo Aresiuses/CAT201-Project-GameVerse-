@@ -32,7 +32,7 @@ public class CartServlet extends HttpServlet {
         if (loggedUser != null) {
             activeCart = loggedUser.getCart();
             if (sessionCart != null && !sessionCart.getItems().isEmpty()) {
-                sessionCart.getItems().forEach(item -> activeCart.addGame(item.getGame(), item.getQuantity()));
+                sessionCart.getItems().forEach(item -> activeCart.addGame(item.getGame(), item.getQuantity(), item.getSelectedPlatform()));
                 session.removeAttribute("userCart");
                 DatabaseHandler.saveUsers();
             }
@@ -55,6 +55,7 @@ public class CartServlet extends HttpServlet {
         response.setCharacterEncoding("UTF-8");
 
         String gameId = request.getParameter("gameId");
+        String platform =  request.getParameter("platform");
         String action = request.getParameter("action");
 
         HttpSession session = request.getSession();
@@ -77,7 +78,8 @@ public class CartServlet extends HttpServlet {
             } else {
                 Optional<Game> game = dbHandler.getGameById(gameId);
                 if (game.isPresent()) {
-                    activeCart.addGame(game.get(), 1);
+                    String p = (platform != null) ? platform : "PC";
+                    activeCart.addGame(game.get(), 1, p);
                 } else {
                     response.setStatus(HttpServletResponse.SC_NOT_FOUND);
                     return;

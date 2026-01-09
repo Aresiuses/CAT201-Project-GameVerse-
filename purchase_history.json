@@ -1,20 +1,30 @@
 [
   {
-    "orderId": "ORD-0B1BCC45",
+    "orderId": "ORD-0239A635",
     "userId": 1,
     "gameTitles": [
-      "Stardew Valley"
+      "CyberDrive 2077 (PS5)",
+      "Terraria (PC)"
     ],
-    "totalPrice": 19.99,
-    "purchaseDate": "2026-01-05 21:34"
+    "totalPrice": 79.98,
+    "purchaseDate": "2026-01-09 20:38"
   },
   {
-    "orderId": "ORD-DCA48BDD",
-    "userId": 3,
+    "orderId": "ORD-762401EF",
+    "userId": 1,
     "gameTitles": [
-      "The Legend of Zelda: Breath of the Wild and The Legend of Zelda: Breath of the Wild Expansion Pass Bundle"
+      "CyberDrive 2077 (PC)"
     ],
-    "totalPrice": 80.0,
-    "purchaseDate": "2026-01-05 21:43"
+    "totalPrice": 119.98,
+    "purchaseDate": "2026-01-09 20:42"
+  },
+  {
+    "orderId": "ORD-05A6D759",
+    "userId": 2,
+    "gameTitles": [
+      "Terraria (PC)"
+    ],
+    "totalPrice": 19.99,
+    "purchaseDate": "2026-01-09 21:12"
   }
 ]

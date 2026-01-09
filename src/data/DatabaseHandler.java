@@ -49,13 +49,6 @@ public class DatabaseHandler {
             initializeWithMockData();
             saveGamesToFile();
         }
-
-
-        // ---- IGDB API TEST ----
-        System.out.println("\n--- Initiating IGDB API Test ---");
-        GameDataAPIService apiService = new GameDataAPIService();
-        apiService.fetchGameMetadata("The Witcher 3");
-        System.out.println("--- IGDB API Test Complete ---\n");
     }
 
 
@@ -171,8 +164,8 @@ public class DatabaseHandler {
             double total = user.getCart().getTotalPrice();
 
             for (CartItem item : user.getCart().getItems()) {
-                user.addOwnedGame(item.getGame().getId());
-                boughtTitles.add(item.getGame().getTitle());
+                user.addToLibrary(item.getGame().getId(), item.getSelectedPlatform());
+                boughtTitles.add(item.getGame().getTitle() + " (" + item.getSelectedPlatform() + ")");
             }
 
             // Create history entry

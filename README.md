@@ -2,7 +2,7 @@
 
 ### Project Name: GameVerse
 ### Objective:  Develop a cross-platform digital game store e-commerce application using a pure Java backend (Servlets, OOP)and a web frontend (HTML/CSS/JS).
-### Current Status: Core data model, persistence layer, main store view, and IGDB API integration skeleton are complete.
+### Current Status: Project are complete and functionable.
 ### 1. Project Setup & Prerequisites
 This project requires  a specific environment to run the Servlets.
 
@@ -32,45 +32,69 @@ private static final String TWITCH_CLIENT_SECRET = "YOUR_TWITCH_CLIENT_SECRET";
 
 ### 2. Deployment Guide (IntelliJ IDEA)
 
-1. Open Project in IntelliJ.
+#### 2.1. Library Config
+1. Open the project in IntelliJ.
 
-2. Verify Configuration: Go to Run > Edit Configurations... and verify the "GameVerse Tomcat" configuration exists.
+2. Go to File > Project Structure > Modules.
 
-3. Check Context Path: Ensure the Application Context on the Deployment tab is set to /.
+3. Select the Dependencies tab.
 
-4. Run: Click the green 'Run' button (or Shift+F10).
+4. Click the + icon > JARs or Directories.
 
-5. Access: The application will open in the browser at http://localhost:8080/.
+5. Select the gson-2.10.1.jar and servlet-api.jar from your /lib folder.
 
-### 3. Testing the IGDB API Call
+6. Click Apply and OK to save the configuration
 
-The IGDB API call is currently set up to run automatically when the server starts up (inside the DatabaseHandler constructor).
+#### 2.2. Tomcat Server Setup
+If using IntelliJ IDEA Ultimate:
 
-Verification Steps:
+1. Click Add Configuration (top right).
 
-1. Run Tomcat.
+2. Click + > Tomcat Server > Local.
 
-2. Check the IntelliJ console output immediately.
+3. Point "Application Server" to your Tomcat 9 folder.
 
-3. Expected Success Output: Look for the raw JSON response log:
+4. Go to the Deployment tab.
 
-``` 
---- IGDB RAW JSON RESPONSE START ---
-... (JSON data here) ...
---- IGDB RAW JSON RESPONSE END --- 
+5. Click + > Artifact > GameVerse:war exploded.
 
-```
+6. Set "Application context" to /.
 
+7. Add JSON file in the repository to /bin folder in Tomcat folder to import data used during testing stage.
 
-If you see this, your API credentials and network setup are correct. If you see errors (e.g., Response Code: 401 or 400), the credentials are wrong.
+If using IntelliJ IDEA Community (Smart Tomcat Plugin):
 
-### 4. Data Model Focus (Digital Goods)
+1. Install the Smart Tomcat plugin from the Marketplace.
 
-The Game model has been updated to reflect digital sales:
+2. Click Add Configuration > Smart Tomcat.
 
-The stockCount field and related logic have been removed (please remove the stock from mock data).
+3. Tomcat Server: Select your Tomcat folder.
 
-A new field, downloadSizeGB, and a business method, startDownload(), were added to simulate the post-purchase process.
+4. Deployment Directory: Select your web folder.
 
-Git Usage Reminder:
-Please commit your changes frequently, use meaningful commit messages, and coordinate branching to avoid merge conflicts!
+5. Context Path: Set to project folder to use the JSON file provided or to / to start from zero
+
+### 3. Project Testing
+1. Run the Project: Click the green Play button in IntelliJ.
+
+2. Access the Store: Open http://localhost:8080/ in your browser.
+
+3. User Flow:
+
+    * Register a new account via the Signup page or login using user credentials via Login page (check users.json for credentials).
+
+    * Select a platform (PC/PS5/etc.) and add a game to the Cart.
+
+    * Complete the Checkout to see the game appear in your Library.
+
+    * For PC games, test the Install/Play/Uninstall simulation.
+  
+    * Check the setting menu (Profile page) to update username or change password and to view purchase history
+
+4. Admin Flow:
+
+    * Log in with an admin account (check users.json for credentials).
+
+    * Access the Admin Dashboard via the menu.
+
+    * Enter a game title (e.g., "The Witcher 3") and click Add Game. The system will automatically fetch the cover art and metadata.

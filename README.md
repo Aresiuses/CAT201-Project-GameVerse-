@@ -19,9 +19,7 @@ The following JAR files **MUST** be present in the GameVerse/lib folder and adde
 #### 1.3 External API Config
 The GameDataAPIService.java requires valid credentials to authenticate with the IGDB API via Twitch.
 
-**ACTION REQUIRED** (Backend Specialist):
-
-Obtain your Twitch Client ID and Secret.
+Obtain your Twitch Client ID and Secret from https://dev.twitch.tv/.
 
 Update the static variables in: `src/service/GameDataAPIService.java`
 
@@ -98,3 +96,4 @@ If using IntelliJ IDEA Community (Smart Tomcat Plugin):
     * Access the Admin Dashboard via the menu.
 
     * Enter a game title (e.g., "The Witcher 3") and click Add Game. The system will automatically fetch the cover art and metadata.
+

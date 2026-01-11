@@ -1,5 +1,6 @@
 # STAGE 1: Compilation
-FROM openjdk:11-jdk-slim AS build
+# Switched to eclipse-temurin as the openjdk-slim image is often unavailable or deprecated
+FROM eclipse-temurin:11-jdk AS build
 
 # Create build directory
 WORKDIR /app
